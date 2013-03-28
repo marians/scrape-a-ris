@@ -26,6 +26,7 @@ entstanden.
 import mechanize
 import parse
 import datetime
+import time
 import queue
 from model.session import Session
 from model.attachment import Attachment
@@ -83,7 +84,7 @@ class Scraper(object):
         for (year, month) in monthlist:
             url = self.config.CALENDAR_MONTH_URL_PRINT_PATTERN % (year, month)
             print "Looking for sessions in %04d-%02d at %s" % (year, month, url)
-
+            time.sleep(self.config.WAIT_TIME)
             response = self.user_agent.open(url)
             html = response.read()
             html = html.replace('&nbsp;', ' ')
@@ -125,6 +126,7 @@ class Scraper(object):
 
         session = Session(numeric_id=session_id)
 
+        time.sleep(self.config.WAIT_TIME)
         response = self.user_agent.open(session_url)
         # forms for later attachment download
         mechanize_forms = mechanize.ParseResponse(response, backwards_compat=False)
@@ -359,6 +361,7 @@ class Scraper(object):
 
         submission = Submission(numeric_id=submission_id)
 
+        time.sleep(self.config.WAIT_TIME)
         response = self.user_agent.open(submission_url)
         mechanize_forms = mechanize.ParseResponse(response, backwards_compat=False)
         response.seek(0)
@@ -485,6 +488,7 @@ class Scraper(object):
             print "Submission %d stored with _id %s" % (submission_id, oid)
 
     def get_attachment(self, attachment, form):
+        time.sleep(self.config.WAIT_TIME)
         if self.options.verbose:
             sys.stdout.write("Getting attachment '%s'\n" % attachment_id)
         mechanize_request = form.click()

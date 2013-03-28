@@ -32,26 +32,12 @@ TODO: Weitere requirements (Pyhton-Module, Kommandozeilentools) beschreiben
 Synopsis:
 
 1. Mit virtualenv eine Python-Umgebung einrichten und diese starten
-2. Die folgenden Python-Mdule installieren
-
-    lxml==3.1.0
-    mechanize==0.2.5
-    parse==1.6.1
-    py==1.4.13
-    pymongo==2.4.2
-    pytest==2.3.4
-    python-magic==0.4.3
-    wsgiref==0.1.2
-
+2. Python-Module installieren
 3. MongoDB starten
 4. Konfigurationsdatei config_example.py kopieren zu config.py, config.py anpassen
 5. Optional (für Volltext-Extraktion aus PDFs etc.): Apache Tika herunter laden und Pfad in der Konfigurationsdatei eintragen
 
-TODO: Ausführliche Beschreibung der erstmaligen Einrichtung
-
-### Konfiguration
-
-Die Konfiguration wird in config_example.py erläutert.
+Eine [ausführliche Installationsanleitung](https://github.com/marians/scrape-a-ris/wiki/Installation) findet sich im Wiki.
 
 ### Anwendung
 
@@ -69,10 +55,15 @@ So werden dabei direkt die Volltexte aus Dokumenten-Anhängen erfasst:
 
 TODO: Ausführliche Beschreibung
 
+
 ## Feedback
 
 Bitte nutze den [Issues](https://github.com/marians/scrape-a-ris/issues) Bereich in diesem Github repository, um
 Bugs zu melden.
+
+Wenn Du Hilfe bei der Anpassung der Konfiguration an Dein RIS benötigst, kannst Du Dich auch an die [RIS-Öffner
+Mailngliste](https://groups.google.com/group/ris-oeffner/) wenden.
+
 
 ## Unterstützung
 
@@ -80,4 +71,4 @@ Die Entwicklung an Scrape-a-RIS leiste ich unentgeldlich, dafür verzichte ich a
 von Aufträgen verbunden ist. Wenn Dir Scrape-a-RIS einen Dienst erweist und Du die Entwicklung unterstützen möchtest,
 freue ich mich über eine Spende.
 
-Spenden via [Gittip](https://www.gittip.com/marians/) | [PayPal](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=NJF88AWULCKCQ)
+Spenden via [Gittip](https://www.gittip.com/marians/) oder [PayPal](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=NJF88AWULCKCQ)

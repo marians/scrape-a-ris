@@ -67,8 +67,10 @@ Mailngliste](https://groups.google.com/group/ris-oeffner/) wenden.
 
 ## Unterstützung
 
-Die Entwicklung an Scrape-a-RIS leiste ich unentgeldlich, dafür verzichte ich auf das Einkommen, das mit der Bearbeitung
-von Aufträgen verbunden ist. Wenn Dir Scrape-a-RIS einen Dienst erweist und Du die Entwicklung unterstützen möchtest,
+Die Entwicklung an Scrape-a-RIS leiste ich unentgeldlich. Während ich das tue, entgeht mir Einkommen, das mit
+der Bearbeitung von Aufträgen verbunden wäre. Ein Dilemma! ;-)
+
+Wenn Dir Scrape-a-RIS einen Dienst erweist und Du die Entwicklung unterstützen möchtest,
 freue ich mich über eine Spende.
 
 Spenden via [Gittip](https://www.gittip.com/marians/) oder [PayPal](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=NJF88AWULCKCQ)

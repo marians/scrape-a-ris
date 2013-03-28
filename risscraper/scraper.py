@@ -323,28 +323,7 @@ class Scraper(object):
                                 for control in mform.controls:
                                     if control.name == 'DT' and control.value == attachment_id:
                                         #print "Found matching form: ", control.name, control.value
-                                        mechanize_request = mform.click()
-                                        try:
-                                            mform_response = mechanize.urlopen(mechanize_request)
-                                            mform_url = mform_response.geturl()
-                                            if self.config.ATTACHMENT_DOWNLOAD_TARGET in mform_url:
-                                                #print "Response headers:", mform_response.info()
-                                                content = mform_response.read()
-                                                attachment.size = len(content)
-                                                attachment.sha1_checksum = hashlib.sha1(content).hexdigest()
-                                                attachment.mimetype = magic.from_buffer(content, mime=True)
-                                                attachment.path = self.save_attachment_file(content,
-                                                    identifier=attachment_id,
-                                                    mimetype=attachment.mimetype)
-                                                if self.options.fulltext:
-                                                    attachment.content = tikaclient.extract_from_file(
-                                                        attachment.path,
-                                                        self.config.TIKA_COMMAND)
-                                            else:
-                                                sys.stderr.write("Unexpected form target URL '%s'\n" % mform_url)
-                                        except mechanize.HTTPError as e:
-                                            print "HTTP-FEHLER:", e.code, e.msg
-                            #pprint.pprint(attachment.dict())
+                                        attachment = self.get_attachment(attachment, mform)
                             attachments.append(attachment)
                             found_attachments.append(attachment_id)
             if len(attachments):
@@ -497,7 +476,6 @@ class Scraper(object):
                             #print "Form found: '%s'" % mform
                             for control in mform.controls:
                                 if control.name == 'DT' and control.value == attachment_id:
-                                    #print "Found matching form: ", control.name, control.value
                                     attachment = self.get_attachment(attachment, mform)
                                     submission.attachments.append(attachment)
 
@@ -507,6 +485,8 @@ class Scraper(object):
             print "Submission %d stored with _id %s" % (submission_id, oid)
 
     def get_attachment(self, attachment, form):
+        if self.options.verbose:
+            sys.stdout.write("Getting attachment '%s'\n" % attachment_id)
         mechanize_request = form.click()
         try:
             mform_response = mechanize.urlopen(mechanize_request)

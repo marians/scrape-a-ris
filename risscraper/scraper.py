@@ -178,20 +178,26 @@ class Scraper(object):
         if len(tds) == 0:
             raise TemplateError('Cannot find table fields using SESSION_DETAIL_IDENTIFIER_TD_XPATH')
         else:
-            # first row may or may not be "Mandant" info
-            fieldoffset = 0
-            if "Mandant" in tds[0].text:
-                fieldoffset = 2
-            if tds[fieldoffset].text == 'Sitzung:':
-                session.identifier = tds[fieldoffset + 1].text
-            if tds[fieldoffset + 2].text == 'Gremium:':
-                session.committee_name = tds[fieldoffset + 3].text
-            if tds[fieldoffset + 4].text == 'Datum:' and tds[fieldoffset + 6].text == 'Zeit:':
-                session.date_start = tds[fieldoffset + 5].text + ' ' + tds[fieldoffset + 7].text
-            if tds[fieldoffset + 8].text == 'Raum:':
-                session.address = " ".join(tds[fieldoffset + 9].xpath('./text()'))
-            if tds[fieldoffset + 10].text == 'Bezeichnung:':
-                session.description = tds[fieldoffset + 11].text
+            for n in range(0, len(tds)):
+                try:
+                    tdcontent = tds[n].text.strip()
+                    nextcontent = tds[n + 1].text.strip()
+                except:
+                    continue
+                if tdcontent == 'Sitzung:':
+                    session.identifier = nextcontent
+                elif tdcontent == 'Gremium:':
+                    session.committee_name = nextcontent
+                elif tdcontent == 'Datum:':
+                    datestring = nextcontent
+                    if tds[n + 2].text == 'Zeit:':
+                        if (n + 3) in tds and tds[n + 3].text is not None:
+                            datestring + ' ' + tds[n + 3].text
+                    session.date_start = datestring
+                elif tdcontent == 'Raum:':
+                    session.address = " ".join(tds[n + 1].xpath('./text()'))
+                elif tdcontent == 'Bezeichnung:':
+                    session.description = nextcontent
             if not hasattr(session, 'identifier'):
                 raise TemplateError('Cannot find session identifier using SESSION_DETAIL_IDENTIFIER_TD_XPATH')
 
@@ -231,7 +237,7 @@ class Scraper(object):
                         if href is None:
                             continue
                         parsed = parse.search(self.config.SUBMISSION_DETAIL_URL_PARSE_PATTERN, href)
-                        if parse is not None:
+                        if parsed is not None:
                             submission = Submission(numeric_id=int(parsed['submission_id']),
                                                     identifier=link.text)
                             submissions.append(submission)

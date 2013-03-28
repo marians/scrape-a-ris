@@ -15,7 +15,7 @@ verwenden. Scrape-A-RIS ist der Nachfolger von [cologne-ris-scraper](https://git
 und kann für zahlreiche Kommunen eingesetzt werden.
 
 Scrape-A-RIS kann verwendet werden, um die strukturierten Daten und Inhalte aus Sitzungen, Tagesordnungspunkten,
-Beschlussvorlagen, Anträgen und Anhängen auszulesen und diese in einer Datenbank abzulegen. Das Wort "Scraper"
+Beschlussvorlagen, Anträgen und Anhängen auszulesen und diese in einer Datenbank abzulegen. Das Wort [Scraper](http://de.wikipedia.org/wiki/Screen_Scraping)
 deutet auf die Funktionsweise hin: die Inhalte werden so aus den HTML-Seiten des RIS gelesen, wie sie für ganz
 normale Besucher im Web angezeigt werden.
 

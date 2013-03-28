@@ -36,7 +36,7 @@ entstanden.
 # The AGS MUST have 8 digits. It MUST be a string, not a number,
 # in order to save leading zeroes.
 #
-AGS = "08222000"
+AGS = "08222000"  # Mannheim
 
 # Currently, only "mongodb" is supported
 DB_TYPE = 'mongodb'
@@ -51,7 +51,8 @@ DB_HOST = 'localhost'
 DB_PORT = 27017
 
 # SessionNet base url, should include trailing slash
-BASE_URL = 'http://buergerinfo.mannheim.de/buergerinfo/'
+BASE_URL = 'http://buergerinfo.mannheim.de/buergerinfo/'  # Mannheim
+
 
 # Name to identify your crawler to the server
 USER_AGENT_NAME = 'scrape-a-ris/0.1'

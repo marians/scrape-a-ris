@@ -26,7 +26,6 @@ entstanden.
 #import socket
 #import time
 import sys
-import config
 import subprocess
 
 
@@ -46,9 +45,9 @@ import subprocess
 #    return response
 
 
-def extract_from_file(path):
+def extract_from_file(path, tika_cmd):
     #sys.stdout.write(config.TIKA_COMMAND)
-    cmd = config.TIKA_COMMAND + ' ' + path
+    cmd = tika_cmd + ' ' + path
     output, error = subprocess.Popen(
             cmd.split(' '), stdout=subprocess.PIPE,
             stderr=subprocess.PIPE).communicate()

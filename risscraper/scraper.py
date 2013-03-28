@@ -331,7 +331,9 @@ class Scraper(object):
                                                     identifier=attachment_id,
                                                     mimetype=attachment.mimetype)
                                                 if self.options.fulltext:
-                                                    attachment.content = tikaclient.extract_from_file(attachment.path)
+                                                    attachment.content = tikaclient.extract_from_file(
+                                                        attachment.path,
+                                                        self.config.TIKA_COMMAND)
                                             else:
                                                 sys.stderr.write("Unexpected form target URL '%s'\n" % mform_url)
                                         except mechanize.HTTPError as e:
@@ -513,7 +515,7 @@ class Scraper(object):
                     identifier=attachment.identifier,
                     mimetype=attachment.mimetype)
                 if self.options.fulltext:
-                    attachment.content = tikaclient.extract_from_file(attachment.path)
+                    attachment.content = tikaclient.extract_from_file(attachment.path, self.config.TIKA_COMMAND)
             else:
                 sys.stderr.write("Unexpected form target URL '%s'\n" % mform_url)
         except mechanize.HTTPError as e:

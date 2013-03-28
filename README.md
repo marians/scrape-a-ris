@@ -44,7 +44,7 @@ Die Konfiguration wird in config_example.py erläutert.
 
 ### Anwendung
 
-Die Kommandozeilen-Parameter werden erläutert, wenn das Hauptscript wie folgt aufruft:
+Alle Kommandozeilen-Parameter werden erläutert, wenn das Hauptscript wie folgt aufgerufen wird:
 
     >>> python main.py --help
 

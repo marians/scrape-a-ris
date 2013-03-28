@@ -5,7 +5,7 @@
 Scrape-A-RIS is a scraper for assembly information systems (Ratsinformationssysteme, RIS)
 using Somacos SessionNet, written in Python. Scrape-a-RIS is the successor of 
 [cologne-ris-scraper](https://github.com/marians/cologne-ris-scraper) and is usable
-for SessionNet instances in numerous municipalities.
+for SessionNet instances in numerous municipalities (in Germany, mainly).
 
 
 ## German information

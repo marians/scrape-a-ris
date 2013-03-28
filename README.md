@@ -32,9 +32,20 @@ TODO: Weitere requirements (Pyhton-Module, Kommandozeilentools) beschreiben
 Synopsis:
 
 1. Mit virtualenv eine Python-Umgebung einrichten und diese starten
-2. MongoDB starten
-3. Konfigurationsdatei config_example.py kopieren zu config.py, config.py anpassen
-4. Optional Apache Tika installieren und in der Konfigurationsdatei eintragen
+2. Die folgenden Python-Mdule installieren
+
+    lxml==3.1.0
+    mechanize==0.2.5
+    parse==1.6.1
+    py==1.4.13
+    pymongo==2.4.2
+    pytest==2.3.4
+    python-magic==0.4.3
+    wsgiref==0.1.2
+
+3. MongoDB starten
+4. Konfigurationsdatei config_example.py kopieren zu config.py, config.py anpassen
+5. Optional Apache Tika installieren und in der Konfigurationsdatei eintragen
 
 TODO: Ausführliche Beschreibung der erstmaligen Einrichtung
 

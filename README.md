@@ -68,3 +68,16 @@ So werden dabei direkt die Volltexte aus Dokumenten-Anhängen erfasst:
     >>> python main.py --start="2013-02" --end="2013-03" -f -q -v -u
 
 TODO: Ausführliche Beschreibung
+
+## Feedback
+
+Bitte nutze den [Issues](https://github.com/marians/scrape-a-ris/issues) Bereich in diesem Github repository, um
+Bugs zu melden.
+
+## Unterstützung
+
+Die Entwicklung an Scrape-a-RIS leiste ich unentgeldlich, dafür verzichte ich auf das Einkommen, das mit der Bearbeitung
+von Aufträgen verbunden ist. Wenn Dir Scrape-a-RIS einen Dienst erweist und Du die Entwicklung unterstützen möchtest,
+freue ich mich über eine Spende.
+
+Spenden via [Gittip](https://www.gittip.com/marians/) | [PayPal](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=NJF88AWULCKCQ)

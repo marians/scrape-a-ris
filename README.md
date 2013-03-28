@@ -45,7 +45,7 @@ Synopsis:
 
 3. MongoDB starten
 4. Konfigurationsdatei config_example.py kopieren zu config.py, config.py anpassen
-5. Optional Apache Tika installieren und in der Konfigurationsdatei eintragen
+5. Optional (für Volltext-Extraktion aus PDFs etc.): Apache Tika herunter laden und Pfad in der Konfigurationsdatei eintragen
 
 TODO: Ausführliche Beschreibung der erstmaligen Einrichtung
 

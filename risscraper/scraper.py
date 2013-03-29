@@ -352,7 +352,7 @@ class Scraper(object):
                                 for control in mform.controls:
                                     if control.name == 'DT' and control.value == attachment_id:
                                         #print "Found matching form: ", control.name, control.value
-                                        attachment = self.get_attachment(attachment, mform)
+                                        attachment = self.get_attachment_file(attachment, mform)
                             attachments.append(attachment)
                             found_attachments.append(attachment_id)
             if len(attachments):
@@ -506,7 +506,7 @@ class Scraper(object):
                             #print "Form found: '%s'" % mform
                             for control in mform.controls:
                                 if control.name == 'DT' and control.value == attachment_id:
-                                    attachment = self.get_attachment(attachment, mform)
+                                    attachment = self.get_attachment_file(attachment, mform)
                                     submission.attachments.append(attachment)
 
         # forcing overwrite=True here
@@ -514,7 +514,16 @@ class Scraper(object):
         if self.options.verbose:
             print "Submission %d stored with _id %s" % (submission_id, oid)
 
-    def get_attachment(self, attachment, form):
+    def get_attachment_file(self, attachment, form):
+        """
+        Loads the attachment file from the server and stores it into
+        the attachment object given as a parameter. The form
+        parameter is the mechanize Form to be submitted for downloading
+        the attachment.
+
+        The attachment parameter has to be an object of type
+        model.attachment.Attachment.
+        """
         time.sleep(self.config.WAIT_TIME)
         if self.options.verbose:
             sys.stdout.write("Getting attachment '%s'\n" % attachment.identifier)

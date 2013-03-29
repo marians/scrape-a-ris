@@ -142,15 +142,6 @@ class Scraper(object):
 
         print "Getting session %d from %s" % (session_id, session_url)
 
-        # Optionally check for existing record
-        # TODO: this doesn't really make sense here, since submissions are
-        # already created as incomplete objects in the database
-        if not self.options.update:
-            if self.db.session_exists(session_id):
-                if self.options.verbose:
-                    print "Session %d is already in database. Not updating." % session_id
-                    return
-
         session = Session(numeric_id=session_id)
 
         time.sleep(self.config.WAIT_TIME)
@@ -379,13 +370,6 @@ class Scraper(object):
 
         print "Getting submission %d from %s" % (submission_id, submission_url)
 
-        # Optionally check for existing record
-        if not self.options.update:
-            if self.db.submission_exists(submission_id):
-                if self.options.verbose:
-                    print "Submission %d is already in database. Not updating." % submission_id
-                    return
-
         submission = Submission(numeric_id=submission_id)
 
         time.sleep(self.config.WAIT_TIME)
@@ -533,15 +517,9 @@ class Scraper(object):
             mform_url = mform_response.geturl()
             if self.list_in_string(self.urls['ATTACHMENT_DOWNLOAD_TARGET'], mform_url):
                 #print "Response headers:", mform_response.info()
-                content = mform_response.read()
-                attachment.size = len(content)
-                attachment.sha1_checksum = hashlib.sha1(content).hexdigest()
-                attachment.mimetype = magic.from_buffer(content, mime=True)
-                attachment.path = self.save_attachment_file(content,
-                    identifier=attachment.identifier,
-                    mimetype=attachment.mimetype)
-                if self.options.fulltext:
-                    attachment.content = tikaclient.extract_from_file(attachment.path, self.config.TIKA_COMMAND)
+                attachment.content = mform_response.read()
+                attachment.mimetype = magic.from_buffer(attachment.content, mime=True)
+                attachment.filename = self.make_attachment_filename(attachment.identifier, attachment.mimetype)
             else:
                 sys.stderr.write("Unexpected form target URL '%s'\n" % mform_url)
         except mechanize.HTTPError as e:
@@ -559,6 +537,12 @@ class Scraper(object):
             str(secondfolder))
         return ret
 
+    def make_attachment_filename(self, identifier, mimetype):
+        ext = 'dat'
+        if mimetype in self.config.FILE_EXTENSIONS:
+            ext = self.config.FILE_EXTENSIONS[mimetype]
+        return identifier + '.' + ext
+
     def save_attachment_file(self, content, identifier, mimetype):
         """
         Creates a reconstructable folder hierarchy for attachments
@@ -566,14 +550,7 @@ class Scraper(object):
         folder = self.make_attachment_path(identifier)
         if not os.path.exists(folder):
             os.makedirs(folder)
-        extensions = {
-            'application/pdf': 'pdf',
-            'image/tiff': 'tif'
-        }
-        ext = 'dat'
-        if mimetype in extensions:
-            ext = extensions[mimetype]
-        path = folder + os.sep + identifier + '.' + ext
+        path = folder + os.sep + self.make_attachment_filename(self, identifier, mimetype)
         with open(path, 'wb') as f:
             f.write(content)
             f.close()

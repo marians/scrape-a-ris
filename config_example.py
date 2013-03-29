@@ -231,3 +231,10 @@ XPATH = {
         'SUBMISSION_DETAIL_ATTACHMENTS_CONTAINER_CLASSNAME': 'smcdocbox'
     }
 }
+
+
+FILE_EXTENSIONS = {
+    'application/pdf': 'pdf',
+    'image/tiff': 'tif',
+    'image/jpeg': 'jpg'
+}

@@ -83,6 +83,7 @@ if __name__ == '__main__':
         db.erase()
 
     scraper = Scraper(config, db, options)
+    scraper.guess_system()
 
     if options.session_id:
         scraper.get_session(session_id=int(options.session_id))

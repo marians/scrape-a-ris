@@ -57,6 +57,10 @@ class Scraper(object):
         # Queues
         self.session_queue = queue.Queue()
         self.submission_queue = queue.Queue()
+        # system info (PHP/ASP)
+        self.template_system = None
+        self.urls = None
+        self.xpath = None
 
     def work_from_queue(self):
         """
@@ -70,6 +74,29 @@ class Scraper(object):
         while self.submission_queue.has_next():
             self.get_submission(submission_id=self.submission_queue.get())
 
+    def guess_system(self):
+        """
+        Tries to find out which SessionNet version we are working with
+        and adapts configuration
+        """
+        time.sleep(self.config.WAIT_TIME)
+        # requesting the base URL. This is usually redirected
+        response = self.user_agent.open(self.config.BASE_URL)
+        url = response.geturl()
+        assert (url != self.config.BASE_URL), "No redirect"
+        if url.endswith('.php'):
+            self.template_system = 'PHP'
+        elif url.endswith('.asp'):
+            self.template_system = 'ASP'
+        else:
+            sys.stderr.write("ERROR: Cannot guess template system from URL '%s'\n" % url)
+            # there is no point in going on here.
+            sys.exit(1)
+        self.urls = self.config.URLS[self.template_system]
+        self.xpath = self.config.XPATH[self.template_system]
+        if self.options.verbose:
+            sys.stdout.write("Found %s template system.\n" % self.template_system)
+
     def find_sessions(self, start_date=None, end_date=None):
         """
         Find sessions within a given time frame and add them to the session queue.
@@ -82,7 +109,7 @@ class Scraper(object):
         )]
 
         for (year, month) in monthlist:
-            url = self.config.CALENDAR_MONTH_URL_PRINT_PATTERN % (year, month)
+            url = self.urls['CALENDAR_MONTH_PRINT_PATTERN'] % (year, month)
             print "Looking for sessions in %04d-%02d at %s" % (year, month, url)
             time.sleep(self.config.WAIT_TIME)
             response = self.user_agent.open(url)
@@ -95,7 +122,7 @@ class Scraper(object):
                 href = link.get('href')
                 if href is None:
                     continue
-                parsed = parse.search(self.config.SESSION_DETAIL_URL_PARSE_PATTERN, href)
+                parsed = parse.search(self.urls['SESSION_DETAIL_PARSE_PATTERN'], href)
                 if parsed is not None:
                     self.session_queue.add(int(parsed['session_id']))
                     found += 1
@@ -108,9 +135,9 @@ class Scraper(object):
         """
         # Read either session_id or session_url from the opposite
         if session_id is not None:
-            session_url = self.config.SESSION_DETAIL_URL_PRINT_PATTERN % session_id
+            session_url = self.urls['SESSION_DETAIL_PRINT_PATTERN'] % session_id
         elif session_url is not None:
-            parsed = parse.search(self.config.SESSION_DETAIL_URL_PARSE_PATTERN, session_url)
+            parsed = parse.search(self.urls['SESSION_DETAIL_PARSE_PATTERN'], session_url)
             session_id = parsed['session_id']
 
         print "Getting session %d from %s" % (session_id, session_url)
@@ -160,23 +187,23 @@ class Scraper(object):
 
         # Session title
         try:
-            session.title = dom.xpath(self.config.SESSION_DETAIL_TITLE_XPATH)[0].text
+            session.title = dom.xpath(self.xpath['SESSION_DETAIL_TITLE'])[0].text
         except:
-            raise TemplateError('Cannot find session title element using SESSION_DETAIL_TITLE_XPATH')
+            raise TemplateError('Cannot find session title element using XPath SESSION_DETAIL_TITLE')
 
         # Committe link
         try:
-            links = dom.xpath(self.config.SESSION_DETAIL_COMMITTEE_LINK_XPATH)
+            links = dom.xpath(self.xpath['SESSION_DETAIL_COMMITTEE_LINK'])
             for link in links:
                 href = link.get('href')
-                parsed = parse.search(self.config.COMMITTEE_DETAIL_URL_PARSE_PATTERN, href)
+                parsed = parse.search(self.urls['COMMITTEE_DETAIL_PARSE_PATTERN'], href)
                 if parsed is not None:
                     session.committee_id = parsed['committee_id']
         except:
             raise TemplateError('Cannot find link to committee detail page using SESSION_DETAIL_COMMITTEE_LINK_XPATH')
 
         # Session identifier, date, address etc
-        tds = dom.xpath(self.config.SESSION_DETAIL_IDENTIFIER_TD_XPATH)
+        tds = dom.xpath(self.xpath['SESSION_DETAIL_IDENTIFIER_TD'])
         if len(tds) == 0:
             raise TemplateError('Cannot find table fields using SESSION_DETAIL_IDENTIFIER_TD_XPATH')
         else:
@@ -201,13 +228,13 @@ class Scraper(object):
                 elif tdcontent == 'Bezeichnung:':
                     session.description = nextcontent
             if not hasattr(session, 'identifier'):
-                raise TemplateError('Cannot find session identifier using SESSION_DETAIL_IDENTIFIER_TD_XPATH')
+                raise TemplateError('Cannot find session identifier using XPath SESSION_DETAIL_IDENTIFIER_TD')
 
         # Agendaitems
         found_attachments = []
-        rows = dom.xpath(self.config.SESSION_DETAIL_AGENDA_ROWS_XPATH)
+        rows = dom.xpath(self.xpath['SESSION_DETAIL_AGENDA_ROWS'])
         if len(rows) == 0:
-            raise TemplateError('Cannot find agenda using SESSION_DETAIL_AGENDA_ROWS_XPATH')
+            raise TemplateError('Cannot find agenda using XPath SESSION_DETAIL_AGENDA_ROWS')
         else:
             agendaitems = {}
             agendaitem_id = None
@@ -232,13 +259,13 @@ class Scraper(object):
                     agendaitems[agendaitem_id]['subject'] = "; ".join(fields[1].xpath('./text()'))
                     agendaitems[agendaitem_id]['public'] = public
                     # submission links
-                    links = row.xpath(self.config.SESSION_DETAIL_AGENDA_ROWS_SUBMISSION_LINK_XPATH)
+                    links = row.xpath(self.xpath['SESSION_DETAIL_AGENDA_ROWS_SUBMISSION_LINK'])
                     submissions = []
                     for link in links:
                         href = link.get('href')
                         if href is None:
                             continue
-                        parsed = parse.search(self.config.SUBMISSION_DETAIL_URL_PARSE_PATTERN, href)
+                        parsed = parse.search(self.urls['SUBMISSION_DETAIL_PARSE_PATTERN'], href)
                         if parsed is not None:
                             submission = Submission(numeric_id=int(parsed['submission_id']),
                                                     identifier=link.text)
@@ -294,13 +321,13 @@ class Scraper(object):
             session.agendaitems = agendaitems
 
         # session-related attachments
-        containers = dom.xpath(self.config.SESSION_DETAIL_ATTACHMENTS_XPATH)
+        containers = dom.xpath(self.xpath['SESSION_DETAIL_ATTACHMENTS'])
         for container in containers:
             classes = container.get('class')
             if classes is None:
                 continue
             classes = classes.split(' ')
-            if self.config.SESSION_DETAIL_ATTACHMENTS_CONTAINER_CLASSNAME not in classes:
+            if self.xpath['SESSION_DETAIL_ATTACHMENTS_CONTAINER_CLASSNAME'] not in classes:
                 continue
             attachments = []
             rows = container.xpath('.//tr')
@@ -345,9 +372,9 @@ class Scraper(object):
         """
         # Read either submission_id or submission_url from the opposite
         if submission_id is not None:
-            submission_url = self.config.SUBMISSION_DETAIL_URL_PRINT_PATTERN % submission_id
+            submission_url = self.urls['SUBMISSION_DETAIL_PRINT_PATTERN'] % submission_id
         elif submission_url is not None:
-            parsed = parse.search(self.config.SUBMISSION_DETAIL_URL_PARSE_PATTERN, submission_url)
+            parsed = parse.search(self.urls['SUBMISSION_DETAIL_PARSE_PATTERN'], submission_url)
             submission_id = parsed['submission_id']
 
         print "Getting submission %d from %s" % (submission_id, submission_url)
@@ -386,14 +413,14 @@ class Scraper(object):
 
         # Session title
         try:
-            submission.title = dom.xpath(self.config.SUBMISSION_DETAIL_TITLE_XPATH)[0].text
+            submission.title = dom.xpath(self.xpath['SUBMISSION_DETAIL_TITLE'])[0].text
         except:
-            raise TemplateError('Cannot find submission title element using SUBMISSION_DETAIL_TITLE_XPATH')
+            raise TemplateError('Cannot find submission title element using XPath SUBMISSION_DETAIL_TITLE')
 
         # Submission identifier, date, type etc
-        tds = dom.xpath(self.config.SUBMISSION_DETAIL_IDENTIFIER_TD_XPATH)
+        tds = dom.xpath(self.xpath['SUBMISSION_DETAIL_IDENTIFIER_TD'])
         if len(tds) == 0:
-            raise TemplateError('Cannot find table fields using SUBMISSION_DETAIL_IDENTIFIER_TD_XPATH')
+            raise TemplateError('Cannot find table fields using XPath SUBMISSION_DETAIL_IDENTIFIER_TD')
         else:
             current_category = None
             for n in range(0, len(tds)):
@@ -414,7 +441,7 @@ class Scraper(object):
                 elif tdcontent == 'Referenzvorlage:':
                     link = tds[n + 1].xpath('a')[0]
                     href = link.get('href')
-                    parsed = parse.search(self.config.SUBMISSION_DETAIL_URL_PARSE_PATTERN, href)
+                    parsed = parse.search(self.urls['SUBMISSION_DETAIL_PARSE_PATTERN'], href)
                     submission.superordinate = {
                         'identifier': link.text.strip(),
                         'numeric_id': parsed['submission_id']
@@ -425,14 +452,14 @@ class Scraper(object):
                     current_category = 'subordinates'
                     for link in tds[n + 1].xpath('a'):
                         href = link.get('href')
-                        parsed = parse.search(self.config.SUBMISSION_DETAIL_URL_PARSE_PATTERN, href)
+                        parsed = parse.search(self.urls['SUBMISSION_DETAIL_PARSE_PATTERN'], href)
                         if parse is not None:
                             self.submission_queue.add(parsed['submission_id'])
                 else:
                     if current_category == 'subordinates':
                         for link in tds[n + 1].xpath('a'):
                             href = link.get('href')
-                            parsed = parse.search(self.config.SUBMISSION_DETAIL_URL_PARSE_PATTERN, href)
+                            parsed = parse.search(self.urls['SUBMISSION_DETAIL_PARSE_PATTERN'], href)
                             if parse is not None:
                                 self.submission_queue.add(parsed['submission_id'])
 
@@ -443,7 +470,7 @@ class Scraper(object):
         # This is currently not parsed for scraping, but only for
         # gathering session-attachment ids fpr later exclusion
         found_attachments = []
-        rows = dom.xpath(self.config.SUBMISSION_DETAIL_AGENDA_ROWS_XPATH)
+        rows = dom.xpath(self.xpath['SUBMISSION_DETAIL_AGENDA_ROWS'])
         for row in rows:
             formfields = row.xpath('.//input[@type="hidden"][@name="DT"]')
             if len(formfields):
@@ -453,13 +480,13 @@ class Scraper(object):
 
         # submission-related attachments
         submission.attachments = []
-        containers = dom.xpath(self.config.SUBMISSION_DETAIL_ATTACHMENTS_XPATH)
+        containers = dom.xpath(self.xpath['SUBMISSION_DETAIL_ATTACHMENTS'])
         for container in containers:
             try:
                 classes = container.get('class').split(' ')
             except:
                 continue
-            if self.config.SUBMISSION_DETAIL_ATTACHMENTS_CONTAINER_CLASSNAME not in classes:
+            if self.xpath['SUBMISSION_DETAIL_ATTACHMENTS_CONTAINER_CLASSNAME'] not in classes:
                 continue
             rows = container.xpath('.//tr')
             for row in rows:
@@ -490,12 +517,12 @@ class Scraper(object):
     def get_attachment(self, attachment, form):
         time.sleep(self.config.WAIT_TIME)
         if self.options.verbose:
-            sys.stdout.write("Getting attachment '%s'\n" % attachment_id)
+            sys.stdout.write("Getting attachment '%s'\n" % attachment.identifier)
         mechanize_request = form.click()
         try:
             mform_response = mechanize.urlopen(mechanize_request)
             mform_url = mform_response.geturl()
-            if self.config.ATTACHMENT_DOWNLOAD_TARGET in mform_url:
+            if self.list_in_string(self.urls['ATTACHMENT_DOWNLOAD_TARGET'], mform_url):
                 #print "Response headers:", mform_response.info()
                 content = mform_response.read()
                 attachment.size = len(content)
@@ -542,6 +569,15 @@ class Scraper(object):
             f.write(content)
             f.close()
             return path
+
+    def list_in_string(self, stringlist, string):
+        """
+        Tests if one of the strings in stringlist in contained in string.
+        """
+        for lstring in stringlist:
+            if lstring in string:
+                return True
+        return False
 
 
 class TemplateError(Exception):

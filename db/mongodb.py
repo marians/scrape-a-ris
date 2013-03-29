@@ -167,30 +167,38 @@ class MongoDatabase(object):
                     {'$set': set_attributes})
         return oid
 
-    def save_submission(self, submission, overwrite=False):
+    def save_submission(self, submission):
         """Write submission to DB and return ObjectID"""
-        # TODO: Overwriting in case of changes would make more sense.
-        submission_dict = submission.dict()
+        submission_stored = self.get_object('submissions', 'numeric_id', submission.numeric_id)
+        submission_fresh = submission.dict()
         # dereference submission-related attachments
-        if 'attachments' in submission_dict:
+        if 'attachments' in submission_fresh:
             # replace attachment datasets with DBRef dicts
-            for n in range(0, len(submission_dict['attachments'])):
+            for n in range(0, len(submission_fresh['attachments'])):
                 # Add attachment or return it's _id
-                oid = self.save_attachment(submission_dict['attachments'][n])
+                oid = self.save_attachment(submission_fresh['attachments'][n])
                 #print "Attachment _ID: ", oid
-                submission_dict['attachments'][n] = DBRef(
+                submission_fresh['attachments'][n] = DBRef(
                     collection='attachments', id=oid)
-        #pprint.pprint(submission_dict)
-        oid = self.get_object_id('submissions', 'numeric_id', submission.numeric_id)
-        if (oid is None) or (overwrite == True):
-            submission_dict['ags'] = self.config.AGS
-            result = self.db.submissions.update(
-                {'numeric_id': submission.numeric_id},
-                submission_dict,
-                upsert=True
-            )
-            if 'upserted' in result:
-                oid = result['upserted']
+            # TODO: look for attachments that were there previously.
+
+        if submission_stored is not None:
+            # now compare old and new dict
+            set_attributes = {}
+            for key in submission_fresh.keys():
+                if key in ['last_modified']:
+                    continue
+                if key not in submission_stored:
+                    #print "Key '%s' is not in stored attachment." % key
+                    set_attributes[key] = submission_fresh[key]
+                elif submission_stored[key] != submission_fresh[key]:
+                    #print "Key '%s' value has changed." % key
+                    set_attributes[key] = submission_fresh[key]
+            if set_attributes != {}:
+                set_attributes['last_modified'] = submission_fresh['last_modified']
+                self.db.submissions.update({'_id': oid}, {'$set': set_attributes})
+        else:
+            oid = self.db.submissions.insert()
         return oid
 
     def save_session(self, session):

@@ -493,7 +493,7 @@ class Scraper(object):
                                     submission.attachments.append(attachment)
 
         # forcing overwrite=True here
-        oid = self.db.save_submission(submission, overwrite=True)
+        oid = self.db.save_submission(submission)
         if self.options.verbose:
             print "Submission %d stored with _id %s" % (submission_id, oid)
 

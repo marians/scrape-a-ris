@@ -552,7 +552,7 @@ class Scraper(object):
 
     def save_attachment_file(self, content, identifier, mimetype):
         """
-        Creates a reconstructable foder hierarchy for attachments
+        Creates a reconstructable folder hierarchy for attachments
         """
         folder = self.make_attachment_path(identifier)
         if not os.path.exists(folder):

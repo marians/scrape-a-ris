@@ -35,7 +35,6 @@ Synopsis:
 2. Python-Module installieren
 3. MongoDB starten
 4. Konfigurationsdatei config_example.py kopieren zu config.py, config.py anpassen
-5. Optional (für Volltext-Extraktion aus PDFs etc.): Apache Tika herunter laden und Pfad in der Konfigurationsdatei eintragen
 
 Eine [ausführliche Installationsanleitung](https://github.com/marians/scrape-a-ris/wiki/Installation) findet sich im Wiki.
 
@@ -47,11 +46,8 @@ Alle Kommandozeilen-Parameter werden erläutert, wenn das Hauptscript wie folgt 
 
 Mit diesem Aufruf können Inhalte für Februar und März 2013 abgerufen werden:
 
-    >>> python main.py --start="2013-02" --end="2013-03" -q -v -u
+    >>> python main.py --start="2013-02" --end="2013-03" -v
 
-So werden dabei direkt die Volltexte aus Dokumenten-Anhängen erfasst:
-
-    >>> python main.py --start="2013-02" --end="2013-03" -f -q -v -u
 
 TODO: Ausführliche Beschreibung
 

@@ -38,7 +38,6 @@ import hashlib
 import pprint
 import magic
 import os
-from util import tikaclient
 
 
 class Scraper(object):

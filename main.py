@@ -37,15 +37,9 @@ if __name__ == '__main__':
             help=("Name of the configuration module to use (e.g. 'config_koeln' for file 'config_koeln.py'). " +
                 "Default: 'config'"))
     parser.add_argument('--verbose', '-v', action='count', default=0, dest="verbose")
-    #parser.add_argument('--update', '-u', dest="update", action="store_true",
-    #        default=False, help='Set this to make the scraper update existing records. Default = No')
     parser.add_argument('--queue', '-q', dest="workfromqueue", action="store_true",
             default=False, help=('Set this flag to activate "greedy" scraping. This means that ' +
                 'links from sessions to submissions are followed. Default = No'))
-    parser.add_argument('--fulltext', '-f', dest="fulltext", action="store_true",
-            default=False, help=('Set this flag to activate fulltext extraction during scraping. ' +
-                'This slows down the scraping process and can also be done using an ' +
-                'external script. Default = No'))
     parser.add_argument('--start', dest="start_month",
             default=False, help=('Find sessions and related content starting in this month. ' +
                 'Format: "YYYY-MM". When this is used, the -q parameter is implied.'))

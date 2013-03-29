@@ -24,7 +24,7 @@ entstanden.
 """
 
 from document import Document
-import filters
+import hashlib
 
 
 class Attachment(Document):
@@ -32,16 +32,33 @@ class Attachment(Document):
     An attachment (Anhang) class
     """
     def __init__(self, identifier, name=None, mimetype=None, filename=None,
-                 size=None, sha1_checksum=None, content=None, path=None,
+                 size=None, sha1=None, content=None, fulltext=None,
                  last_modified=None, thumbnails=None):
         self.identifier = identifier
         self.name = name
         self.mimetype = mimetype
         self.filename = filename
         self.size = size
-        self.sha1_checksum = sha1_checksum
-        self.content = content
-        self.path = path
+        # SHA1 hash of the file's content
+        self.sha1 = sha1
+        # binary content of the file
+        self.x_content = content
+        # extracted text of the file
+        self.fulltext = fulltext
         self.last_modified = last_modified
         self.thumbnails = thumbnails
         super(Attachment, self).__init__()
+
+    @property
+    def content(self):
+        return self.x_content
+
+    @content.setter
+    def content(self, value):
+        self.x_content = value
+        if value is None:
+            self.size = None
+            self.sha1 = None
+        else:
+            self.size = len(value)
+            self.sha1 = hashlib.sha1(value).hexdigest()

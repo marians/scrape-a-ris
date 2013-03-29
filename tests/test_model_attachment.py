@@ -66,7 +66,7 @@ def test_named_args():
             mimetype="application/pdf",
             filename="SomeAttachment.pdf",
             size=123456,
-            sha1_checksum="439873428369057jsdfkjsh983239873523kj",
+            sha1="439873428369057jsdfkjsh983239873523kj",
             content="\r\nThis is some messy content\r\n",
             thumbnails=[]
         )
@@ -78,3 +78,12 @@ def test_dict():
     a = Attachment("foobar")
     d = a.dict()
     assert type(d) == dict
+
+
+def test_sha1():
+    from hashlib import sha1
+    a = Attachment("foobar")
+    content = "Hello WOrld, this Is some Fabcy file content."
+    a.content = content
+    sha1 = sha1(content).hexdigest()
+    assert sha1 == a.sha1

@@ -56,9 +56,6 @@ BASE_URL = 'http://buergerinfo.mannheim.de/buergerinfo/'  # Mannheim
 # Name to identify your crawler to the server
 USER_AGENT_NAME = 'scrape-a-ris/0.1'
 
-# Folder where attachments will be stored
-ATTACHMENT_FOLDER = 'cache/attachments/' + AGS
-
 # Number of seconds to wait between requests. Increase this
 # if the systems behaves unstable (seconds)
 WAIT_TIME = 0.2

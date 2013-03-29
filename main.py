@@ -60,7 +60,13 @@ if __name__ == '__main__':
 
     if options.configname:
         #config = __import__(options.configname, fromlist=[''])
-        config = importlib.import_module(options.configname)
+        try:
+            config = importlib.import_module(options.configname)
+        except ImportError, e:
+            if "No module named" in str(e):
+                sys.stderr.write("ERROR: Configuration module not found. Make sure you have your config file\n")
+                sys.stderr.write("       named '%s.py' in the main folder.\n" % options.configname)
+            sys.exit(1)
 
     db = None
     if config.DB_TYPE == 'mongodb':

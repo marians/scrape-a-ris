@@ -215,7 +215,6 @@ class MongoDatabase(object):
         Write session object to database. This means dereferencing all
         associated objects as DBrefs
         """
-        print "save_session() called"
         session_stored = self.get_object('sessions', 'numeric_id', session.numeric_id)
         session_dict = session.dict()
         session_dict['ags'] = self.config.AGS

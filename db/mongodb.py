@@ -113,7 +113,8 @@ class MongoDatabase(object):
         file_changed = False
         if attachment_stored is not None:
             # attachment exists in database and must be compared field by field
-            print "Attachment %s is already in database with _id %s" % (attachment.identifier, str(attachment_stored['_id']))
+            if self.options.verbose:
+                sys.stdout.write("Attachment %s is already in database with _id %s\n" % (attachment.identifier, str(attachment_stored['_id'])))
             # check if file is referenced
             file_stored = None
             if 'file' in attachment_stored:
@@ -142,8 +143,9 @@ class MongoDatabase(object):
         oid = None
         if attachment_stored is None:
             # insert new
-            print "Inserting new attachment document"
             oid = self.db.attachments.insert(attachment_fresh)
+            if self.options.verbose:
+                sys.stdout.write("Attachment %s inserted with _id %s\n" % (attachment.identifier, str(oid)))
         else:
             # Only do partial update
             oid = attachment_stored['_id']
@@ -171,6 +173,8 @@ class MongoDatabase(object):
         """Write submission to DB and return ObjectID"""
         submission_stored = self.get_object('submissions', 'numeric_id', submission.numeric_id)
         submission_fresh = submission.dict()
+        submission_fresh['ags'] = self.config.AGS
+
         # dereference submission-related attachments
         if 'attachments' in submission_fresh:
             # replace attachment datasets with DBRef dicts
@@ -181,6 +185,11 @@ class MongoDatabase(object):
                 submission_fresh['attachments'][n] = DBRef(
                     collection='attachments', id=oid)
             # TODO: look for attachments that were there previously.
+
+        # dereference superordinate
+        if 'superordinate' in submission_fresh:
+            sup = self.get_object('submissions', 'numeric_id', submission_fresh['superordinate']['numeric_id'])
+            submission_fresh['superordinate'] = DBRef(collection='submissions', id=sup['_id'])
 
         if submission_stored is not None:
             # now compare old and new dict
@@ -196,30 +205,30 @@ class MongoDatabase(object):
                     set_attributes[key] = submission_fresh[key]
             if set_attributes != {}:
                 set_attributes['last_modified'] = submission_fresh['last_modified']
-                self.db.submissions.update({'_id': oid}, {'$set': set_attributes})
+                self.db.submissions.update({'_id': submission_stored['_id']}, {'$set': set_attributes})
+            return submission_stored['_id']
         else:
-            oid = self.db.submissions.insert()
-        return oid
+            return self.db.submissions.insert(submission_fresh)
 
     def save_session(self, session):
         """
         Write session object to database. This means dereferencing all
         associated objects as DBrefs
         """
+        print "save_session() called"
+        session_stored = self.get_object('sessions', 'numeric_id', session.numeric_id)
         session_dict = session.dict()
+        session_dict['ags'] = self.config.AGS
         # dereference session-related attachments
         if 'attachments' in session_dict:
             # replace attachment datasets with DBRef dicts
             for n in range(0, len(session_dict['attachments'])):
                 # Add attachment or return it's _id
                 oid = self.save_attachment(session_dict['attachments'][n])
-                #print "Attachment _ID: ", oid
                 session_dict['attachments'][n] = DBRef(
                     collection='attachments', id=oid)
-            #pprint.pprint(session_dict['attachments'])
         # dereference agendaitem-related submissions
         if 'agendaitems' in session_dict:
-            #pprint.pprint(session_dict['agendaitems'])
             # replace attachment datasets with DBRef dicts
             for agendaitem_id in session_dict['agendaitems'].keys():
                 if 'submissions' not in session_dict['agendaitems'][agendaitem_id]:
@@ -230,18 +239,29 @@ class MongoDatabase(object):
                     #print "Submission _ID: ", oid
                     session_dict['agendaitems'][agendaitem_id]['submissions'][n] = DBRef(
                         collection='submissions', id=oid)
-                #pprint.pprint(session_dict['agendaitems'])
-        # TODO: dereference future references like committee
-        session_dict['ags'] = self.config.AGS
-        result = self.db.sessions.update(
-            {'numeric_id': session.numeric_id},
-            session_dict,
-            upsert=True
-        )
-        if 'upserted' in result:
-            return result['upserted']
-        elif 'updatedExisting' in result:
-            return self.get_object_id('sessions', 'numeric_id', session.numeric_id)
+        # TODO: dereference additional references like committee
+        if session_stored is None:
+            # insert new document
+            oid = self.db.sessions.insert(session_dict)
+            if self.options.verbose:
+                sys.stdout.write("Session %s inserted as new\n" % (oid))
         else:
-            sys.stderr.write("Error in MongoDatabase.save_session(): Database write result not in 'upserted' nor 'updatedExisting'\n")
-            pprint.pprint(result)
+            # compare old and new dict and then send update
+            if self.options.verbose:
+                sys.stdout.write("Session %d updated with _id %s\n" % (session.numeric_id, session_stored['_id']))
+            set_attributes = {}
+            for key in session_dict.keys():
+                if key in ['last_modified']:
+                    continue
+                if key not in session_stored:
+                    if self.options.verbose:
+                        sys.stdout.write("Key '%s' will be added to session\n" % key)
+                    set_attributes[key] = session_dict[key]
+                elif session_stored[key] != session_dict[key]:
+                    if self.options.verbose:
+                        sys.stdout.write("Key '%s' in session has changed\n" % key)
+                    set_attributes[key] = session_dict[key]
+            if set_attributes != {}:
+                set_attributes['last_modified'] = session_dict['last_modified']
+                self.db.sessions.update({'_id': session_stored['_id']}, {'$set': set_attributes})
+            return session_stored['_id']

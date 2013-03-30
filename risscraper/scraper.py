@@ -429,6 +429,7 @@ class Scraper(object):
                         'identifier': link.text.strip(),
                         'numeric_id': parsed['submission_id']
                     }
+                    # add superordinate submission to queue
                     self.submission_queue.add(parsed['submission_id'])
                 # subordinate submissions are added to the queue
                 elif tdcontent == 'Untergeordnete Vorlage(n):':
@@ -437,6 +438,7 @@ class Scraper(object):
                         href = link.get('href')
                         parsed = parse.search(self.urls['SUBMISSION_DETAIL_PARSE_PATTERN'], href)
                         if parse is not None:
+                            #add subordinate submission to queue
                             self.submission_queue.add(parsed['submission_id'])
                 else:
                     if current_category == 'subordinates':

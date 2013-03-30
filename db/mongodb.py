@@ -189,7 +189,8 @@ class MongoDatabase(object):
         # dereference superordinate
         if 'superordinate' in submission_fresh:
             sup = self.get_object('submissions', 'numeric_id', submission_fresh['superordinate']['numeric_id'])
-            submission_fresh['superordinate'] = DBRef(collection='submissions', id=sup['_id'])
+            if sup is not None:
+                submission_fresh['superordinate'] = DBRef(collection='submissions', id=sup['_id'])
 
         if submission_stored is not None:
             # now compare old and new dict

@@ -245,6 +245,7 @@ class MongoDatabase(object):
             oid = self.db.sessions.insert(session_dict)
             if self.options.verbose:
                 sys.stdout.write("Session %s inserted as new\n" % (oid))
+            return oid
         else:
             # compare old and new dict and then send update
             if self.options.verbose:

@@ -39,7 +39,8 @@ if __name__ == '__main__':
     parser.add_argument('--verbose', '-v', action='count', default=0, dest="verbose")
     parser.add_argument('--queue', '-q', dest="workfromqueue", action="store_true",
             default=False, help=('Set this flag to activate "greedy" scraping. This means that ' +
-                'links from sessions to submissions are followed. Default = No'))
+                'links from sessions to submissions are followed. This is implied ' +
+                'if --start is given, otherwise it is off by default.'))
     parser.add_argument('--start', dest="start_month",
             default=False, help=('Find sessions and related content starting in this month. ' +
                 'Format: "YYYY-MM". When this is used, the -q parameter is implied.'))

@@ -308,7 +308,7 @@ class Scraper(object):
                     if fields[0].text is not None and "Nicht öffentlich" in fields[0].text.encode('utf-8'):
                         public = False
             #print json.dumps(agendaitems, indent=2)
-            session.agendaitems = agendaitems
+            session.agendaitems = agendaitems.values()
 
         # session-related attachments
         containers = dom.xpath(self.xpath['SESSION_DETAIL_ATTACHMENTS'])
@@ -542,6 +542,8 @@ class Scraper(object):
         ext = 'dat'
         if mimetype in self.config.FILE_EXTENSIONS:
             ext = self.config.FILE_EXTENSIONS[mimetype]
+        if ext == 'dat':
+            sys.stderr.write("WARNING: No entry in config.FILE_EXTENSIONS for '%s'\n" % mimetype)
         return identifier + '.' + ext
 
     def save_attachment_file(self, content, identifier, mimetype):

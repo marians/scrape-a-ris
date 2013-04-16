@@ -214,5 +214,7 @@ XPATH = {
 FILE_EXTENSIONS = {
     'application/pdf': 'pdf',
     'image/tiff': 'tif',
-    'image/jpeg': 'jpg'
+    'image/jpeg': 'jpg',
+    'application/vnd.ms-powerpoint': 'pptx',
+    'application/msword': 'doc'
 }

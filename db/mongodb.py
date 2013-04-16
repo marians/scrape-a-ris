@@ -52,6 +52,7 @@ class MongoDatabase(object):
         self.db.sessions.ensure_index([('numeric_id', ASCENDING), ('ags', ASCENDING)], unique=True)
         self.db.attachments.ensure_index([('identifier', ASCENDING), ('ags', ASCENDING)], unique=True)
         self.db.submissions.ensure_index([('numeric_id', ASCENDING), ('ags', ASCENDING)], unique=True)
+        self.db.submissions.ensure_index('identifier', ASCENDING)
         self.db.fs.files.ensure_index(
             [
                 ('ags', ASCENDING),
@@ -230,14 +231,14 @@ class MongoDatabase(object):
         # dereference agendaitem-related submissions
         if 'agendaitems' in session_dict:
             # replace attachment datasets with DBRef dicts
-            for agendaitem_id in session_dict['agendaitems'].keys():
-                if 'submissions' not in session_dict['agendaitems'][agendaitem_id]:
+            for m in range(len(session_dict['agendaitems'])):
+                if 'submissions' not in session_dict['agendaitems'][m]:
                     continue
-                for n in range(0, len(session_dict['agendaitems'][agendaitem_id]['submissions'])):
+                for n in range(0, len(session_dict['agendaitems'][m]['submissions'])):
                     # Add submission or return it's _id
-                    oid = self.save_submission(session_dict['agendaitems'][agendaitem_id]['submissions'][n])
+                    oid = self.save_submission(session_dict['agendaitems'][m]['submissions'][n])
                     #print "Submission _ID: ", oid
-                    session_dict['agendaitems'][agendaitem_id]['submissions'][n] = DBRef(
+                    session_dict['agendaitems'][m]['submissions'][n] = DBRef(
                         collection='submissions', id=oid)
         # TODO: dereference additional references like committee
         if session_stored is None:

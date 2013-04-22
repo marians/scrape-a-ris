@@ -105,9 +105,12 @@ class MongoDatabase(object):
 
     def save_attachment(self, attachment):
         """
-        Write attachment to DB and return ObjectID. If the attachment already exists,
-        the existing attachment is updated in the database. If the attachment.content has
-        changed, a new GridFS file version is added.
+        Write attachment to DB and return ObjectID.
+        - If the attachment already exists, the existing attachment
+          is updated in the database.
+        - If the attachment.content has changed, a new GridFS file version
+          is added.
+        - If attachment is depublished, no new file is stored.
         """
         attachment_stored = self.get_object('attachments', 'identifier', attachment.identifier)
         attachment_fresh = attachment.dict()
@@ -129,7 +132,8 @@ class MongoDatabase(object):
                 elif file_stored['md5'] != md5(attachment.content).hexdigest():
                     file_changed = True
         # Create new file version (if necessary)
-        if file_changed or attachment_stored is None:
+        if ((file_changed and 'depublication' not in attachment_stored)
+            or (attachment_stored is None)):
             file_oid = self.fs.put(attachment.content,
                 filename=attachment.filename,
                 ags=self.config.AGS)
@@ -138,7 +142,7 @@ class MongoDatabase(object):
             attachment_fresh['file'] = DBRef(collection='fs.files', id=file_oid)
 
         # erase file content (since stored elsewhere above)
-        attachment_fresh['content'] = None
+        del attachment_fresh['content']
         attachment_fresh['ags'] = self.config.AGS
 
         oid = None
@@ -162,7 +166,8 @@ class MongoDatabase(object):
                     set_attributes[key] = attachment_fresh[key]
                 #else:
                 #    print "Key '%s' is unchanged." % key
-            if 'file' not in attachment_fresh:
+
+            if 'file' not in attachment_fresh and 'file' in attachment_stored:
                     set_attributes['file'] = attachment_stored['file']
             if file_changed or set_attributes != {}:
                 set_attributes['last_modified'] = attachment_fresh['last_modified']

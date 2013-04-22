@@ -3,10 +3,13 @@
 
 import magic
 
+mpath = 'config/magic/magic.mgc'
+m = magic.Magic(magic_file=mpath)
+
 
 def test_pdf13():
     path = 'tests/testdata/test-indesign-pdf-1.3.pdf'
-    result = magic.from_file(path, mime=True)
+    result = m.from_file(path, mime=True)
     assert result == 'application/pdf'
 
 
@@ -117,7 +120,7 @@ def test_libreoffice_unified_office_uot():
 def test_word_97_2004_doc():
     path = 'tests/testdata/test-word-97-2004.doc'
     result1 = magic.from_file(path)
-    assert 'Composite Document File V2 Document' in result1
+    assert 'Word' in result1
     result2 = magic.from_file(path, mime=True)
     assert result2 == 'application/msword'
 

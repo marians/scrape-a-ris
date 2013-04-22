@@ -396,7 +396,8 @@ class Scraper(object):
 
         # Session title
         try:
-            submission.title = dom.xpath(self.xpath['SUBMISSION_DETAIL_TITLE'])[0].text
+            stitle = dom.xpath(self.xpath['SUBMISSION_DETAIL_TITLE'])
+            submission.title = stitle[0].text
         except:
             raise TemplateError('Cannot find submission title element using XPath SUBMISSION_DETAIL_TITLE')
 

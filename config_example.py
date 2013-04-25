@@ -61,7 +61,7 @@ USER_AGENT_NAME = 'scrape-a-ris/0.1'
 WAIT_TIME = 0.2
 
 # Log level (DEBUG, INFO, WARNING, ERROR or CRITICAL)
-LOG_LEVEL = 'DEBUG'
+LOG_LEVEL = 'INFO'
 # File to log to
 LOG_FILE = 'scrapearis_%s_%s.log' % (DB_NAME, AGS)
 

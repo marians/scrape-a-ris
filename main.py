@@ -28,6 +28,7 @@ from risscraper.scraper import Scraper
 import datetime
 import sys
 import importlib
+import logging
 
 
 if __name__ == '__main__':
@@ -68,6 +69,28 @@ if __name__ == '__main__':
                 sys.stderr.write("ERROR: Configuration module not found. Make sure you have your config file\n")
                 sys.stderr.write("       named '%s.py' in the main folder.\n" % options.configname)
             sys.exit(1)
+
+    # set up logging
+    logfile = 'scrapearis.log'
+    if config.LOG_FILE is not None:
+        logfile = config.LOG_FILE
+    levels = {
+        'DEBUG': logging.DEBUG,
+        'INFO': logging.INFO,
+        'WARNING': logging.WARNING,
+        'ERROR': logging.ERROR,
+        'CRITICAL': logging.CRITICAL
+    }
+    loglevel = 'INFO'
+    if config.LOG_LEVEL is not None:
+        loglevel = config.LOG_LEVEL
+    logging.basicConfig(
+        filename=logfile,
+        level=levels[loglevel],
+        format='%(asctime)s %(name)s %(levelname)s %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S')
+    logging.info('Starting scraper with configuration from "%s" and loglevel "%s"',
+        options.configname, loglevel)
 
     db = None
     if config.DB_TYPE == 'mongodb':
@@ -120,3 +143,5 @@ if __name__ == '__main__':
 
     if options.workfromqueue:
         scraper.work_from_queue()
+
+    logging.info('Scraper finished.')

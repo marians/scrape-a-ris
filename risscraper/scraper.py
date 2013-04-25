@@ -35,9 +35,10 @@ import sys
 from lxml import etree
 from StringIO import StringIO
 import hashlib
-import pprint
+#import pprint
 import magic
 import os
+import logging
 
 
 class Scraper(object):
@@ -88,13 +89,15 @@ class Scraper(object):
         elif url.endswith('.asp'):
             self.template_system = 'ASP'
         else:
-            sys.stderr.write("ERROR: Cannot guess template system from URL '%s'\n" % url)
+            logging.critical("Cannot guess template system from URL '%s'", url)
+            sys.stderr.write("CRITICAL ERROR: Cannot guess template system from URL '%s'\n" % url)
             # there is no point in going on here.
             sys.exit(1)
         self.urls = self.config.URLS[self.template_system]
         self.xpath = self.config.XPATH[self.template_system]
+        logging.info("Found %s template system.", self.template_system)
         if self.options.verbose:
-            sys.stdout.write("Found %s template system.\n" % self.template_system)
+            print "Found %s template system" % self.template_system
 
     def find_sessions(self, start_date=None, end_date=None):
         """
@@ -109,7 +112,7 @@ class Scraper(object):
 
         for (year, month) in monthlist:
             url = self.urls['CALENDAR_MONTH_PRINT_PATTERN'] % (year, month)
-            print "Looking for sessions in %04d-%02d at %s" % (year, month, url)
+            logging.info("Looking for sessions in %04d-%02d at %s", year, month, url)
             time.sleep(self.config.WAIT_TIME)
             response = self.user_agent.open(url)
             html = response.read()
@@ -125,8 +128,10 @@ class Scraper(object):
                 if parsed is not None:
                     self.session_queue.add(int(parsed['session_id']))
                     found += 1
-            if self.options.verbose and found == 0:
-                sys.stdout.write("No sessions found for month %04d-%02d\n" % (year, month))
+            if found == 0:
+                logging.info("No sessions found for month %04d-%02d", year, month)
+                if self.options.verbose:
+                    print "No sessions found for month %04d-%02d\n" % (year, month)
 
     def get_session(self, session_url=None, session_id=None):
         """
@@ -139,7 +144,7 @@ class Scraper(object):
             parsed = parse.search(self.urls['SESSION_DETAIL_PARSE_PATTERN'], session_url)
             session_id = parsed['session_id']
 
-        print "Getting session %d from %s" % (session_id, session_url)
+        logging.info("Getting session %d from %s", session_id, session_url)
 
         session = Session(numeric_id=session_id)
 
@@ -158,17 +163,23 @@ class Scraper(object):
         try:
             page_title = dom.xpath('//h1')[0].text
             if 'Fehlermeldung' in page_title:
-                sys.stdout.write("Page cannot be accessed.\n")
+                logging.info("Page %s cannot be accessed due to server error", session_url)
+                if self.options.verbose:
+                    print "Page %s cannot be accessed due to server error" % session_url
                 return
             if 'Berechtigungsfehler' in page_title:
-                sys.stdout.write("Page cannot be accessed.\n")
+                logging.info("Page %s cannot be accessed due to permissions", session_url)
+                if self.options.verbose:
+                    print "Page %s cannot be accessed due to permissions" % session_url
                 return
         except:
             pass
         try:
             error_h3 = dom.xpath('//h3[@class="smc_h3"]')[0].text.strip()
             if 'Keine Daten gefunden' in error_h3:
-                sys.stdout.write("Page does not contain agenda items.\n")
+                logging.info("Page %s does not contain any agenda items", session_url)
+                if self.options.verbose:
+                    print "Page %s does not contain agenda items" % session_url
                 return
         except:
             pass
@@ -179,6 +190,7 @@ class Scraper(object):
         try:
             session.title = dom.xpath(self.xpath['SESSION_DETAIL_TITLE'])[0].text
         except:
+            logging.critical('Cannot find session title element using XPath SESSION_DETAIL_TITLE')
             raise TemplateError('Cannot find session title element using XPath SESSION_DETAIL_TITLE')
 
         # Committe link
@@ -190,11 +202,13 @@ class Scraper(object):
                 if parsed is not None:
                     session.committee_id = parsed['committee_id']
         except:
+            logging.critical('Cannot find link to committee detail page using SESSION_DETAIL_COMMITTEE_LINK_XPATH')
             raise TemplateError('Cannot find link to committee detail page using SESSION_DETAIL_COMMITTEE_LINK_XPATH')
 
         # Session identifier, date, address etc
         tds = dom.xpath(self.xpath['SESSION_DETAIL_IDENTIFIER_TD'])
         if len(tds) == 0:
+            logging.critical('Cannot find table fields using SESSION_DETAIL_IDENTIFIER_TD_XPATH')
             raise TemplateError('Cannot find table fields using SESSION_DETAIL_IDENTIFIER_TD_XPATH')
         else:
             for n in range(0, len(tds)):
@@ -218,12 +232,14 @@ class Scraper(object):
                 elif tdcontent == 'Bezeichnung:':
                     session.description = nextcontent
             if not hasattr(session, 'identifier'):
+                logging.critical('Cannot find session identifier using XPath SESSION_DETAIL_IDENTIFIER_TD')
                 raise TemplateError('Cannot find session identifier using XPath SESSION_DETAIL_IDENTIFIER_TD')
 
         # Agendaitems
         found_attachments = []
         rows = dom.xpath(self.xpath['SESSION_DETAIL_AGENDA_ROWS'])
         if len(rows) == 0:
+            logging.critical('Cannot find agenda using XPath SESSION_DETAIL_AGENDA_ROWS')
             raise TemplateError('Cannot find agenda using XPath SESSION_DETAIL_AGENDA_ROWS')
         else:
             agendaitems = {}
@@ -294,13 +310,16 @@ class Scraper(object):
                             if value in self.config.RESULT_STRINGS:
                                 agendaitems[agendaitem_id]['result'] = self.config.RESULT_STRINGS[value]
                             else:
-                                sys.stdout.write("WARNING: String '%s' not found in RESULT_STRINGS\n" % value)
+                                logging.warn("String '%s' not found in configured RESULT_STRINGS", value)
+                                if self.options.verbose:
+                                    print "WARNING: String '%s' not found in RESULT_STRINGS\n", value
                                 agendaitems[agendaitem_id]['result'] = value
                         elif label == 'Bemerkung:':
                             agendaitems[agendaitem_id]['result_note'] = value
                         elif label == 'Abstimmung:':
                             agendaitems[agendaitem_id]['voting'] = value
                         else:
+                            logging.critical("Agendaitem info label '%s' is unknown", label)
                             raise ValueError('Agendaitem info label "%s" is unknown' % label)
 
                 elif 'smcrowh' in row_classes:
@@ -350,7 +369,7 @@ class Scraper(object):
 
         oid = self.db.save_session(session)
         if self.options.verbose:
-            print "Session %d stored with _id %s" % (session_id, oid)
+            logging.info("Session %d stored with _id %s", session_id, oid)
 
         # TODO: add this committee to the queue
         # TODO: read session participants
@@ -367,7 +386,7 @@ class Scraper(object):
             parsed = parse.search(self.urls['SUBMISSION_DETAIL_PARSE_PATTERN'], submission_url)
             submission_id = parsed['submission_id']
 
-        print "Getting submission %d from %s" % (submission_id, submission_url)
+        logging.info("Getting submission %d from %s", submission_id, submission_url)
 
         submission = Submission(numeric_id=submission_id)
 
@@ -384,10 +403,14 @@ class Scraper(object):
         try:
             page_title = dom.xpath('//h1')[0].text
             if 'Fehlermeldung' in page_title:
-                sys.stdout.write("Page cannot be accessed.\n")
+                logging.info("Page %s cannot be accessed due to server error", submission_url)
+                if self.options.verbose:
+                    print "Page %s cannot be accessed due to server error" % submission_url
                 return
             if 'Berechtigungsfehler' in page_title:
-                sys.stdout.write("Page cannot be accessed.\n")
+                logging.info("Page %s cannot be accessed due to permissions", submission_url)
+                if self.options.verbose:
+                    print "Page %s cannot be accessed due to permissions" % submission_url
                 return
         except:
             pass
@@ -399,11 +422,13 @@ class Scraper(object):
             stitle = dom.xpath(self.xpath['SUBMISSION_DETAIL_TITLE'])
             submission.title = stitle[0].text
         except:
+            logging.critical('Cannot find submission title element using XPath SUBMISSION_DETAIL_TITLE')
             raise TemplateError('Cannot find submission title element using XPath SUBMISSION_DETAIL_TITLE')
 
         # Submission identifier, date, type etc
         tds = dom.xpath(self.xpath['SUBMISSION_DETAIL_IDENTIFIER_TD'])
         if len(tds) == 0:
+            logging.critical('Cannot find table fields using XPath SUBMISSION_DETAIL_IDENTIFIER_TD')
             raise TemplateError('Cannot find table fields using XPath SUBMISSION_DETAIL_IDENTIFIER_TD')
         else:
             current_category = None
@@ -450,6 +475,7 @@ class Scraper(object):
                                 self.submission_queue.add(parsed['submission_id'])
 
             if not hasattr(submission, 'identifier'):
+                logging.critical('Cannot find session identifier using SESSION_DETAIL_IDENTIFIER_TD_XPATH')
                 raise TemplateError('Cannot find session identifier using SESSION_DETAIL_IDENTIFIER_TD_XPATH')
 
         # "Beratungsfolge"(list of sessions for this submission)
@@ -499,6 +525,7 @@ class Scraper(object):
         oid = self.db.save_submission(submission)
         if self.options.verbose:
             print "Submission %d stored with _id %s" % (submission_id, oid)
+        logging.info("Submission %d stored with _id %s", submission_id, oid)
 
     def get_attachment_file(self, attachment, form):
         """
@@ -511,8 +538,9 @@ class Scraper(object):
         model.attachment.Attachment.
         """
         time.sleep(self.config.WAIT_TIME)
+        logging.info("Getting attachment '%s'", attachment.identifier)
         if self.options.verbose:
-            sys.stdout.write("Getting attachment '%s'\n" % attachment.identifier)
+            print "Getting attachment '%s'" % attachment.identifier
         mechanize_request = form.click()
         try:
             mform_response = mechanize.urlopen(mechanize_request)
@@ -523,9 +551,13 @@ class Scraper(object):
                 attachment.mimetype = magic.from_buffer(attachment.content, mime=True)
                 attachment.filename = self.make_attachment_filename(attachment.identifier, attachment.mimetype)
             else:
-                sys.stderr.write("Unexpected form target URL '%s'\n" % mform_url)
+                logging.warn("Unexpected form target URL '%s'", mform_url)
+                if self.options.verbose:
+                    sys.stderr.write("Unexpected form target URL '%s'\n" % mform_url)
         except mechanize.HTTPError as e:
-            print "HTTP-FEHLER:", e.code, e.msg
+            logging.warn("HTTP Error: code %s, info: %s", e.code, e.msg)
+            if self.options.verbose:
+                print "HTTP-FEHLER:", e.code, e.msg
         return attachment
 
     def make_attachment_path(self, identifier):
@@ -544,6 +576,7 @@ class Scraper(object):
         if mimetype in self.config.FILE_EXTENSIONS:
             ext = self.config.FILE_EXTENSIONS[mimetype]
         if ext == 'dat':
+            logging.warn("No entry in config.FILE_EXTENSIONS for '%s'", mimetype)
             sys.stderr.write("WARNING: No entry in config.FILE_EXTENSIONS for '%s'\n" % mimetype)
         return identifier + '.' + ext
 

@@ -29,8 +29,9 @@ from pymongo import DESCENDING
 from bson.dbref import DBRef
 import gridfs
 import sys
-import pprint
+#import pprint
 from hashlib import md5
+import logging
 
 
 class MongoDatabase(object):
@@ -117,6 +118,9 @@ class MongoDatabase(object):
         file_changed = False
         if attachment_stored is not None:
             # attachment exists in database and must be compared field by field
+            logging.info("Attachment %s is already in db with _id=%s",
+                attachment.identifier,
+                str(attachment_stored['_id']))
             if self.options.verbose:
                 sys.stdout.write("Attachment %s is already in database with _id %s\n" % (attachment.identifier, str(attachment_stored['_id'])))
             # check if file is referenced
@@ -137,6 +141,7 @@ class MongoDatabase(object):
             file_oid = self.fs.put(attachment.content,
                 filename=attachment.filename,
                 ags=self.config.AGS)
+            logging.info("New file version stored with _id=%s", str(file_oid))
             if self.options.verbose:
                 sys.stdout.write("New file version stored with _id %s\n" % str(file_oid))
             attachment_fresh['file'] = DBRef(collection='fs.files', id=file_oid)
@@ -149,6 +154,8 @@ class MongoDatabase(object):
         if attachment_stored is None:
             # insert new
             oid = self.db.attachments.insert(attachment_fresh)
+            logging.info("Attachment %s inserted with _id %s",
+                attachment.identifier, str(oid))
             if self.options.verbose:
                 sys.stdout.write("Attachment %s inserted with _id %s\n" % (attachment.identifier, str(oid)))
         else:
@@ -159,10 +166,10 @@ class MongoDatabase(object):
                 if key in ['last_modified']:
                     continue
                 if key not in attachment_stored:
-                    print "Key '%s' is not in stored attachment." % key
+                    #print "Key '%s' is not in stored attachment." % key
                     set_attributes[key] = attachment_fresh[key]
                 elif attachment_stored[key] != attachment_fresh[key]:
-                    print "Key '%s' value has changed." % key
+                    #print "Key '%s' value has changed." % key
                     set_attributes[key] = attachment_fresh[key]
                 #else:
                 #    print "Key '%s' is unchanged." % key
@@ -249,11 +256,14 @@ class MongoDatabase(object):
         if session_stored is None:
             # insert new document
             oid = self.db.sessions.insert(session_dict)
+            logging.info("Session %s inserted as new", oid)
             if self.options.verbose:
                 sys.stdout.write("Session %s inserted as new\n" % (oid))
             return oid
         else:
             # compare old and new dict and then send update
+            logging.info("Session %d updated with _id %s",
+                session.numeric_id, session_stored['_id'])
             if self.options.verbose:
                 sys.stdout.write("Session %d updated with _id %s\n" % (session.numeric_id, session_stored['_id']))
             set_attributes = {}
@@ -261,10 +271,12 @@ class MongoDatabase(object):
                 if key in ['last_modified']:
                     continue
                 if key not in session_stored:
+                    logging.debug("Key '%s' will be added to session", key)
                     if self.options.verbose:
                         sys.stdout.write("Key '%s' will be added to session\n" % key)
                     set_attributes[key] = session_dict[key]
                 elif session_stored[key] != session_dict[key]:
+                    logging.debug("Key '%s' will be updated", key)
                     if self.options.verbose:
                         sys.stdout.write("Key '%s' in session has changed\n" % key)
                     set_attributes[key] = session_dict[key]

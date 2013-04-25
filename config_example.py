@@ -60,6 +60,11 @@ USER_AGENT_NAME = 'scrape-a-ris/0.1'
 # if the systems behaves unstable (seconds)
 WAIT_TIME = 0.2
 
+# Log level (DEBUG, INFO, WARNING, ERROR or CRITICAL)
+LOG_LEVEL = 'DEBUG'
+# File to log to
+LOG_FILE = 'scrapearis_%s_%s.log' % (DB_NAME, AGS)
+
 ###### Result normalization mapping
 
 RESULT_STRINGS = {

@@ -55,8 +55,8 @@ class Scraper(object):
         self.user_agent.set_handle_robots(False)
         self.user_agent.addheaders = [('User-agent', config.USER_AGENT_NAME)]
         # Queues
-        self.session_queue = queue.Queue()
-        self.submission_queue = queue.Queue()
+        self.session_queue = queue.Queue('SCRAPEARIS_SESSIONS', config, db)
+        self.submission_queue = queue.Queue('SCRAPEARIS_SUBMISSIONS', config, db)
         # system info (PHP/ASP)
         self.template_system = None
         self.urls = None
@@ -70,9 +70,16 @@ class Scraper(object):
         2. Submissions
         """
         while self.session_queue.has_next():
-            self.get_session(session_id=self.session_queue.get())
+            job = self.session_queue.get()
+            self.get_session(session_id=job['key'])
+            self.session_queue.resolve_job(job)
         while self.submission_queue.has_next():
-            self.get_submission(submission_id=self.submission_queue.get())
+            job = self.submission_queue.get()
+            self.get_submission(submission_id=job['key'])
+            self.submission_queue.resolve_job(job)
+        # ehen everything is done, we remove DONE jobs
+        self.session_queue.garbage_collect()
+        self.submission_queue.garbage_collect()
 
     def guess_system(self):
         """

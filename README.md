@@ -19,13 +19,14 @@ Beschlussvorlagen, Anträgen und Anhängen auszulesen und diese in einer Datenba
 deutet auf die Funktionsweise hin: die Inhalte werden so aus den HTML-Seiten des RIS gelesen, wie sie für ganz
 normale Besucher im Web angezeigt werden.
 
-### Systemanforderungen
+### Anforderungen
 
 Scrape-A-RIS ist in Python geschrieben und wurde bislang mit Python-Version 2.7.2 auf Mac OS X getestet.
 
 Daten werden in einer [MongoDB](http://www.mongodb.org/) Datenbank gespeichert. Bisher wurde Version 2.2 getestet.
 
-TODO: Weitere requirements (Pyhton-Module, Kommandozeilentools) beschreiben
+Weitere benötigte Software wird in der
+[Installationsanleitung](https://github.com/marians/scrape-a-ris/wiki/Installation) genannt.
 
 ### Installation
 
@@ -36,7 +37,8 @@ Synopsis:
 3. MongoDB starten
 4. Konfigurationsdatei config_example.py kopieren zu config.py, config.py anpassen
 
-Eine [ausführliche Installationsanleitung](https://github.com/marians/scrape-a-ris/wiki/Installation) findet sich im Wiki.
+Eine [ausführliche Installationsanleitung](https://github.com/marians/scrape-a-ris/wiki/Installation) 
+findet sich im Wiki.
 
 ### Anwendung
 
@@ -46,11 +48,9 @@ Alle Kommandozeilen-Parameter werden erläutert, wenn das Hauptscript wie folgt 
 
 Mit diesem Aufruf können Inhalte für Februar und März 2013 abgerufen werden:
 
-    >>> python main.py --start="2013-02" --end="2013-03" -v
+    >>> python main.py -v --start 2013-02 --end 2013-03
 
-
-TODO: Ausführliche Beschreibung
-
+Viel mehr zur Benutzung gibt es in einem [ausführlichen Tutorial](https://github.com/marians/scrape-a-ris/wiki/Benutzung).
 
 ## Feedback
 
@@ -59,7 +59,6 @@ Bugs zu melden.
 
 Wenn Du Hilfe bei der Anpassung der Konfiguration an Dein RIS benötigst, kannst Du Dich auch an die [RIS-Öffner
 Mailngliste](https://groups.google.com/group/ris-oeffner/) wenden.
-
 
 ## Unterstützung
 

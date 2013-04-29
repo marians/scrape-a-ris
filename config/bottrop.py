@@ -1,42 +1,6 @@
 # encoding: utf-8
 
-"""
-Copyright (c) 2012 Marian Steinbach
-
-Hiermit wird unentgeltlich jeder Person, die eine Kopie der Software und
-der zugehörigen Dokumentationen (die "Software") erhält, die Erlaubnis
-erteilt, sie uneingeschränkt zu benutzen, inklusive und ohne Ausnahme, dem
-Recht, sie zu verwenden, kopieren, ändern, fusionieren, verlegen
-verbreiten, unterlizenzieren und/oder zu verkaufen, und Personen, die diese
-Software erhalten, diese Rechte zu geben, unter den folgenden Bedingungen:
-
-Der obige Urheberrechtsvermerk und dieser Erlaubnisvermerk sind in allen
-Kopien oder Teilkopien der Software beizulegen.
-
-Die Software wird ohne jede ausdrückliche oder implizierte Garantie
-bereitgestellt, einschließlich der Garantie zur Benutzung für den
-vorgesehenen oder einen bestimmten Zweck sowie jeglicher Rechtsverletzung,
-jedoch nicht darauf beschränkt. In keinem Fall sind die Autoren oder
-Copyrightinhaber für jeglichen Schaden oder sonstige Ansprüche haftbar zu
-machen, ob infolge der Erfüllung eines Vertrages, eines Delikts oder anders
-im Zusammenhang mit der Software oder sonstiger Verwendung der Software
-entstanden.
-"""
-
-
-
-# AGS key (Amtlicher Gemeindeschlüssel) for the administrative unit.
-#
-# This is used as a namespace prefix in order to make identifiers
-# in the system unique.
-#
-# Find the key for your German city/town/county here:
-# https://www.destatis.de/gv/
-#
-# The AGS MUST have 8 digits. It MUST be a string, not a number,
-# in order to save leading zeroes.
-#
-AGS = "05512000"  # Bottrop
+RS = "055120000000"  # Bottrop
 
 # Currently, only "mongodb" is supported
 DB_TYPE = 'mongodb'
@@ -58,7 +22,7 @@ BASE_URL = 'http://ratsinfo.bottrop.de/buergerinfo/'
 USER_AGENT_NAME = 'scrape-a-ris/0.1'
 
 # Folder where attachments will be stored
-ATTACHMENT_FOLDER = 'cache/attachments/' + AGS
+ATTACHMENT_FOLDER = 'cache/attachments/' + RS
 
 # This requires you to have the tika Jar in the specified location.
 # This will start the Java Runtime environment with the Jar for

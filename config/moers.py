@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-RS = "051240000000"
+RS = "051700024024"  # Moers
 
 # Currently, only "mongodb" is supported
 DB_TYPE = 'mongodb'
@@ -14,39 +14,49 @@ DB_HOST = 'localhost'
 # MongoDB default port is 27017
 DB_PORT = 27017
 
-# Not used for MongoDB
-DB_USER = ''
-DB_PASS = ''
-
 # SessionNet base url, should include trailing slash
-BASE_URL = 'http://www.wuppertal.de/rathaus/onlinedienste/ris/'
+BASE_URL = 'http://www.buergerinfo.moers.de/'
 
 # Name to identify your crawler to the server
 USER_AGENT_NAME = 'scrape-a-ris/0.1'
 
-# Folder where attachments will be stored
-ATTACHMENT_FOLDER = 'cache/attachments/' + RS
+# Number of seconds to wait between requests. Increase this
+# if the systems behaves unstable (seconds)
+WAIT_TIME = 0.2
 
-# This requires you to have the tika Jar in the specified location.
-# This will start the Java Runtime environment with the Jar for
-# every file that will be processed. If you want the faster version,
-# comment this out and use the server version described below.
-#
-TIKA_COMMAND = 'java -jar bin/tika-app-1.3.jar -eutf8 -t'
+###### Result normalization mapping
 
-# If you prefer fast content extraction, start Tika as a server
-# before running the scraper. Use a command like this:
-#
-# > java -jar bin/tika-app-1.3.jar -s -eutf8 -t 55555
-#
-# Make sure to set the according port below:
-#
-TIKA_SERVER = 'localhost'
-TIKA_PORT = 55555
-# ^ (The server option is not implemented yet!)
+RESULT_STRINGS = {
+    'zur Kenntnis genommen': 'KENNTNIS_GENOMMEN',
+    'einstimmig beschlossen': 'BESCHLOSSEN_EINSTIMMIG',
+    u'einstimmig mit \xc4nderung / teilweise beschlossen': 'BESCHLOSSEN_EINSTIMMIG_GEAENDERT',
+    'mit Mehrheit beschlossen': 'BESCHLOSSEN_MEHRHEIT',
+    'mehrheitlich beschlossen': 'BESCHLOSSEN_MEHRHEIT',
+    u'mehrheitlich mit \xc4nderung /teilweise beschlossen': 'BESCHLOSSEN_MEHRHEIT_GEAENDERT',
+    'in Form von WAHLEN beschlossen': 'BESCHLOSSEN_DURCH_WAHLEN',
+    'einstimmig abgelehnt': 'ABGELEHNT_EINSTIMMIG',
+    'mehrheitlich abgelehnt': 'ABGELEHNT_MEHRHEIT',
+    'im BBR beraten': 'BERATEN_BBR',
+    'verwiesen in:': 'VERWIESEN',
+    'in der Sitzung vertagt': 'VERTAGT_IN_SITZUNG',
+    u'vor Eintritt in die Tagesordnung zur\xfcckgezogen': 'ZURUECKGEZOGEN',
+    u'in der Sitzung zur\xfcckgezogen': 'ZURUECKGEZOGEN',
+    'abgesetzt': 'ABGESETZT',
+    'von der Tagesordnung abgesetzt': 'ABGESETZT',
+    'Verwaltung wird so verfahren': 'AKZEPTIERT',
+    'schriftlicher Bericht/Vorlage wurde zugesagt': 'BERICHT_ZUGESAGT',
+    'wird in der Verwaltung weiterbearbeitet': 'WEITERBEARBEITUNG_IN_VERWALTUNG',
+    'durch STELLUNGNAHME der Verwaltung erledigt': 'ERLEDIGT_STELLUNGNAHME_VERWALTUNG',
+    u'durch andere Beschl\xfcsse erledigt': 'ERLEDIGT_DURCH_ANDERE_BESCHLUESSE',
+    'ohne Empfehlung behandelt': 'BEHANDELT_OHNE_EMPFEHLUNG',
+    'Siehe Bemerkungsfeld': 'SONSTIGES',
+    'siehe Protokoll': 'SONSTIGES',
+    'Quorum wurde erreicht': 'QUORUM_ERREICHT'
+}
 
 
 ##### Page URL masks
+
 
 URLS = {
     'ASP': {
@@ -152,7 +162,7 @@ XPATH = {
         'SESSION_DETAIL_ATTACHMENTS_CONTAINER_CLASSNAME': 'smcdocbox',
 
         # Same as above, for the submission detail page (Vorlagen-Detailseite)
-        'SUBMISSION_DETAIL_TITLE': '//h1',
+        'SUBMISSION_DETAIL_TITLE': '//div[@id="smclayout"]//h3',
         'SUBMISSION_DETAIL_IDENTIFIER_TD': '//*[@id="smctablevorgang"]/tbody//td',
 
         # "Beratungsfolge" table rows
@@ -165,35 +175,10 @@ XPATH = {
 }
 
 
-###### Result normalization mapping
-
-RESULT_STRINGS = {
-    'zur Kenntnis genommen': 'KENNTNIS_GENOMMEN',
-    'einstimmig beschlossen': 'BESCHLOSSEN_EINSTIMMIG',
-    u'einstimmig mit \xc4nderung / teilweise beschlossen': 'BESCHLOSSEN_EINSTIMMIG_GEAENDERT',
-    'mit Mehrheit beschlossen': 'BESCHLOSSEN_MEHRHEIT',
-    'mehrheitlich beschlossen': 'BESCHLOSSEN_MEHRHEIT',
-    u'mehrheitlich mit \xc4nderung /teilweise beschlossen': 'BESCHLOSSEN_MEHRHEIT_GEAENDERT',
-    'in Form von WAHLEN beschlossen': 'BESCHLOSSEN_DURCH_WAHLEN',
-    'einstimmig abgelehnt': 'ABGELEHNT_EINSTIMMIG',
-    'mehrheitlich abgelehnt': 'ABGELEHNT_MEHRHEIT',
-    'verwiesen in:': 'VERWIESEN',
-    'in der Sitzung vertagt': 'VERTAGT_IN_SITZUNG',
-    u'vor Eintritt in die Tagesordnung zur\xfcckgezogen': 'ZURUECKGEZOGEN',
-    u'in der Sitzung zur\xfcckgezogen': 'ZURUECKGEZOGEN',
-    'abgesetzt': 'ABGESETZT',
-    'von der Tagesordnung abgesetzt': 'ABGESETZT',
-    'Verwaltung wird so verfahren': 'AKZEPTIERT',
-    'schriftlicher Bericht/Vorlage wurde zugesagt': 'BERICHT_ZUGESAGT',
-    'wird in der Verwaltung weiterbearbeitet': 'WEITERBEARBEITUNG_IN_VERWALTUNG',
-    'durch STELLUNGNAHME der Verwaltung erledigt': 'ERLEDIGT_STELLUNGNAHME_VERWALTUNG',
-    u'durch andere Beschl\xfcsse erledigt': 'ERLEDIGT_DURCH_ANDERE_BESCHLUESSE',
-    'ohne Empfehlung behandelt': 'BEHANDELT_OHNE_EMPFEHLUNG',
-    'Siehe Bemerkungsfeld': 'SONSTIGES',
-    'siehe Protokoll': 'SONSTIGES',
-    'Quorum wurde erreicht': 'QUORUM_ERREICHT'
+FILE_EXTENSIONS = {
+    'application/pdf': 'pdf',
+    'image/tiff': 'tif',
+    'image/jpeg': 'jpg',
+    'application/vnd.ms-powerpoint': 'pptx',
+    'application/msword': 'doc'
 }
-
-# Number of seconds to wait between requests. Increase this
-# if the systems behaves unstable (seconds)
-WAIT_TIME = 0.2

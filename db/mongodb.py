@@ -50,13 +50,13 @@ class MongoDatabase(object):
         """
         Initialize database, if not yet done. Shouln't destroy anything.
         """
-        self.db.sessions.ensure_index([('numeric_id', ASCENDING), ('ags', ASCENDING)], unique=True)
-        self.db.attachments.ensure_index([('identifier', ASCENDING), ('ags', ASCENDING)], unique=True)
-        self.db.submissions.ensure_index([('numeric_id', ASCENDING), ('ags', ASCENDING)], unique=True)
+        self.db.sessions.ensure_index([('numeric_id', ASCENDING), ('rs', ASCENDING)], unique=True)
+        self.db.attachments.ensure_index([('identifier', ASCENDING), ('rs', ASCENDING)], unique=True)
+        self.db.submissions.ensure_index([('numeric_id', ASCENDING), ('rs', ASCENDING)], unique=True)
         self.db.submissions.ensure_index('identifier', ASCENDING)
         self.db.fs.files.ensure_index(
             [
-                ('ags', ASCENDING),
+                ('rs', ASCENDING),
                 ('filename', ASCENDING),
                 ('uploadDate', DESCENDING),
             ],
@@ -76,7 +76,7 @@ class MongoDatabase(object):
         """
         Return a document
         """
-        result = self.db[collection].find_one({'ags': self.config.AGS, key: value})
+        result = self.db[collection].find_one({'rs': self.config.RS, key: value})
         return result
 
     def get_object_id(self, collection, key, value):
@@ -140,7 +140,7 @@ class MongoDatabase(object):
             or (attachment_stored is None)):
             file_oid = self.fs.put(attachment.content,
                 filename=attachment.filename,
-                ags=self.config.AGS)
+                rs=self.config.RS)
             logging.info("New file version stored with _id=%s", str(file_oid))
             if self.options.verbose:
                 sys.stdout.write("New file version stored with _id %s\n" % str(file_oid))
@@ -148,7 +148,7 @@ class MongoDatabase(object):
 
         # erase file content (since stored elsewhere above)
         del attachment_fresh['content']
-        attachment_fresh['ags'] = self.config.AGS
+        attachment_fresh['rs'] = self.config.RS
 
         oid = None
         if attachment_stored is None:
@@ -186,7 +186,7 @@ class MongoDatabase(object):
         """Write submission to DB and return ObjectID"""
         submission_stored = self.get_object('submissions', 'numeric_id', submission.numeric_id)
         submission_fresh = submission.dict()
-        submission_fresh['ags'] = self.config.AGS
+        submission_fresh['rs'] = self.config.RS
 
         # dereference submission-related attachments
         if 'attachments' in submission_fresh:
@@ -231,7 +231,7 @@ class MongoDatabase(object):
         """
         session_stored = self.get_object('sessions', 'numeric_id', session.numeric_id)
         session_dict = session.dict()
-        session_dict['ags'] = self.config.AGS
+        session_dict['rs'] = self.config.RS
         # dereference session-related attachments
         if 'attachments' in session_dict:
             # replace attachment datasets with DBRef dicts

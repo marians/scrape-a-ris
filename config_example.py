@@ -25,18 +25,19 @@ entstanden.
 
 
 
-# AGS key (Amtlicher Gemeindeschlüssel) for the administrative unit.
+# RS key (Regionalschlüssel) for the administrative unit.
 #
 # This is used as a namespace prefix in order to make identifiers
 # in the system unique.
 #
 # Find the key for your German city/town/county here:
-# https://www.destatis.de/gv/
+# https://www.destatis.de/DE/ZahlenFakten/LaenderRegionen/Regionales/Gemeindeverzeichnis/Administrativ/AdministrativeUebersicht.html
 #
-# The AGS MUST have 8 digits. It MUST be a string, not a number,
-# in order to save leading zeroes.
+# The RS can be up to 12 digits long and MUST NOT contain white space.
+# It MUST be a string, not a number, in order to preserve possible
+# leading zeroes.
 #
-AGS = "08222000"  # Mannheim
+RS = "082220000000"  # Mannheim
 
 # Currently, only "mongodb" is supported
 DB_TYPE = 'mongodb'
@@ -63,7 +64,7 @@ WAIT_TIME = 0.2
 # Log level (DEBUG, INFO, WARNING, ERROR or CRITICAL)
 LOG_LEVEL = 'INFO'
 # File to log to
-LOG_FILE = 'scrapearis_%s_%s.log' % (DB_NAME, AGS)
+LOG_FILE = 'scrapearis_%s_%s.log' % (DB_NAME, RS)
 
 ###### Result normalization mapping
 

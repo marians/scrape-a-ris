@@ -1,17 +1,6 @@
 # encoding: utf-8
 
-# AGS key (Amtlicher Gemeindeschlüssel) for the administrative unit.
-#
-# This is used as a namespace prefix in order to make identifiers
-# in the system unique.
-#
-# Find the key for your German city/town/county here:
-# https://www.destatis.de/gv/
-#
-# The AGS MUST have 8 digits. It MUST be a string, not a number,
-# in order to save leading zeroes.
-#
-AGS = "08222000"
+RS = "082220000000"
 
 # Currently, only "mongodb" is supported
 DB_TYPE = 'mongodb'
@@ -36,7 +25,7 @@ BASE_URL = 'http://buergerinfo.mannheim.de/buergerinfo/'
 USER_AGENT_NAME = 'offeneskoeln/2.0_dev'
 
 # Folder where attachments will be stored
-ATTACHMENT_FOLDER = 'cache/attachments/' + AGS
+ATTACHMENT_FOLDER = 'cache/attachments/' + RS
 
 # This requires you to have the tika Jar in the specified location.
 # This will start the Java Runtime environment with the Jar for

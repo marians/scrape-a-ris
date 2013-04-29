@@ -24,9 +24,6 @@ BASE_URL = 'http://buergerinfo.mannheim.de/buergerinfo/'
 # Name to identify your crawler to the server
 USER_AGENT_NAME = 'offeneskoeln/2.0_dev'
 
-# Folder where attachments will be stored
-ATTACHMENT_FOLDER = 'cache/attachments/' + RS
-
 # This requires you to have the tika Jar in the specified location.
 # This will start the Java Runtime environment with the Jar for
 # every file that will be processed. If you want the faster version,

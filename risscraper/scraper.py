@@ -55,8 +55,9 @@ class Scraper(object):
         self.user_agent.set_handle_robots(False)
         self.user_agent.addheaders = [('User-agent', config.USER_AGENT_NAME)]
         # Queues
-        self.session_queue = queue.Queue('SCRAPEARIS_SESSIONS', config, db)
-        self.submission_queue = queue.Queue('SCRAPEARIS_SUBMISSIONS', config, db)
+        if options.workfromqueue:
+            self.session_queue = queue.Queue('SCRAPEARIS_SESSIONS', config, db)
+            self.submission_queue = queue.Queue('SCRAPEARIS_SUBMISSIONS', config, db)
         # system info (PHP/ASP)
         self.template_system = None
         self.urls = None
@@ -132,7 +133,7 @@ class Scraper(object):
                 if href is None:
                     continue
                 parsed = parse.search(self.urls['SESSION_DETAIL_PARSE_PATTERN'], href)
-                if parsed is not None:
+                if hasattr(self, 'session_queue') and parsed is not None:
                     self.session_queue.add(int(parsed['session_id']))
                     found += 1
             if found == 0:
@@ -284,7 +285,8 @@ class Scraper(object):
                                                     identifier=link.text)
                             submissions.append(submission)
                             # Add submission to submission queue
-                            self.submission_queue.add(int(parsed['submission_id']))
+                            if hasattr(self, 'submission_queue'):
+                                self.submission_queue.add(int(parsed['submission_id']))
                     if len(submissions):
                         agendaitems[agendaitem_id]['submissions'] = submissions
                     """
@@ -463,14 +465,15 @@ class Scraper(object):
                         'numeric_id': parsed['submission_id']
                     }
                     # add superordinate submission to queue
-                    self.submission_queue.add(parsed['submission_id'])
+                    if hasattr(self, 'submission_queue'):
+                        self.submission_queue.add(parsed['submission_id'])
                 # subordinate submissions are added to the queue
                 elif tdcontent == 'Untergeordnete Vorlage(n):':
                     current_category = 'subordinates'
                     for link in tds[n + 1].xpath('a'):
                         href = link.get('href')
                         parsed = parse.search(self.urls['SUBMISSION_DETAIL_PARSE_PATTERN'], href)
-                        if parse is not None:
+                        if hasattr(self, 'submission_queue') and parsed is not None:
                             #add subordinate submission to queue
                             self.submission_queue.add(parsed['submission_id'])
                 else:
@@ -478,7 +481,7 @@ class Scraper(object):
                         for link in tds[n + 1].xpath('a'):
                             href = link.get('href')
                             parsed = parse.search(self.urls['SUBMISSION_DETAIL_PARSE_PATTERN'], href)
-                            if parse is not None:
+                            if hasattr(self, 'submission_queue') and parsed is not None:
                                 self.submission_queue.add(parsed['submission_id'])
 
             if not hasattr(submission, 'identifier'):
@@ -530,9 +533,6 @@ class Scraper(object):
 
         # forcing overwrite=True here
         oid = self.db.save_submission(submission)
-        if self.options.verbose:
-            print "Submission %d stored with _id %s" % (submission_id, oid)
-        logging.info("Submission %d stored with _id %s", submission_id, oid)
 
     def get_attachment_file(self, attachment, form):
         """

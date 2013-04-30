@@ -25,7 +25,7 @@ entstanden.
 
 from pymongo import MongoClient
 from pymongo.errors import DuplicateKeyError
-from datetime.datetime import utcnow
+from datetime import datetime
 
 
 class Queue(object):
@@ -68,7 +68,7 @@ class Queue(object):
             'status': 'OPEN',
             'key': key,
             'failures': 0,
-            'last_modified': utcnow()
+            'last_modified': datetime.utcnow()
         }
         if payload is not None:
             job['payload'] = payload
@@ -90,7 +90,7 @@ class Queue(object):
         update = {
             '$set': {
                 'status': 'IN_PROGRESS',
-                'last_modified': utcnow()
+                'last_modified': datetime.utcnow()
             }
         }
         find = self.db.queue.find_and_modify(query=query,
@@ -130,7 +130,7 @@ class Queue(object):
         update = {
             '$set': {
                 'status': 'DONE',
-                'last_modified': utcnow()
+                'last_modified': datetime.utcnow()
             }
         }
         self.db.queue.find_and_modify(query=query,

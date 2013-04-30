@@ -66,11 +66,12 @@ class MongoDatabase(object):
         """
         Delete all data from database.
         """
-        self.db.sessions.remove({})
-        self.db.attachments.remove({})
-        self.db.submissions.remove({})
-        self.db.fs.files.remove()
-        self.db.fs.chunks.remove()
+        self.db.queue.remove({'rs': self.config.RS})
+        self.db.sessions.remove({'rs': self.config.RS})
+        self.db.attachments.remove({'rs': self.config.RS})
+        self.db.submissions.remove({'rs': self.config.RS})
+        self.db.fs.files.remove({'rs': self.config.RS})
+        self.db.fs.chunks.remove({'rs': self.config.RS})
 
     def get_object(self, collection, key, value):
         """
@@ -220,9 +221,16 @@ class MongoDatabase(object):
             if set_attributes != {}:
                 set_attributes['last_modified'] = submission_fresh['last_modified']
                 self.db.submissions.update({'_id': submission_stored['_id']}, {'$set': set_attributes})
+            logging.info("Submission %s updated", submission_stored['_id'])
+            if self.options.verbose:
+                print "Submission %s updated" % submission_stored['_id']
             return submission_stored['_id']
         else:
-            return self.db.submissions.insert(submission_fresh)
+            oid = self.db.submissions.insert(submission_fresh)
+            logging.info("Submission %s inserted as new", oid)
+            if self.options.verbose:
+                print "Submission %s inserted as new" % oid
+            return oid
 
     def save_session(self, session):
         """

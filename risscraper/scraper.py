@@ -55,7 +55,7 @@ class Scraper(object):
         self.user_agent.set_handle_robots(False)
         self.user_agent.addheaders = [('User-agent', config.USER_AGENT_NAME)]
         # Queues
-        if options.workfromqueue:
+        if self.options.workfromqueue:
             self.session_queue = queue.Queue('SCRAPEARIS_SESSIONS', config, db)
             self.submission_queue = queue.Queue('SCRAPEARIS_SUBMISSIONS', config, db)
         # system info (PHP/ASP)
@@ -78,7 +78,7 @@ class Scraper(object):
             job = self.submission_queue.get()
             self.get_submission(submission_id=job['key'])
             self.submission_queue.resolve_job(job)
-        # ehen everything is done, we remove DONE jobs
+        # when everything is done, we remove DONE jobs
         self.session_queue.garbage_collect()
         self.submission_queue.garbage_collect()
 

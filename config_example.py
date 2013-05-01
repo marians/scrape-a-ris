@@ -222,5 +222,6 @@ FILE_EXTENSIONS = {
     'image/tiff': 'tif',
     'image/jpeg': 'jpg',
     'application/vnd.ms-powerpoint': 'pptx',
-    'application/msword': 'doc'
+    'application/msword': 'doc',
+    'application/zip': 'zip'
 }

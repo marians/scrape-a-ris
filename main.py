@@ -58,6 +58,8 @@ if __name__ == '__main__':
             default=False, help='Scrape a specific submission, identified by its detail page URL')
     parser.add_argument('--erase', dest="erase_db", action="store_true",
             default=False, help='Erase all database content before start. Caution!')
+    parser.add_argument('--status', dest="status", action="store_true",
+            default=False, help='Print out queue status')
     options = parser.parse_args()
 
     if options.configname:
@@ -101,6 +103,9 @@ if __name__ == '__main__':
     #    import db.mysqldb
     #    db = db.mysqldb.MysqlDatabase(config)
     #    db.setup()
+
+    if options.status:
+        db.queue_status()
 
     if options.erase_db:
         print "Erasing database"

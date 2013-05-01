@@ -292,3 +292,29 @@ class MongoDatabase(object):
                 set_attributes['last_modified'] = session_dict['last_modified']
                 self.db.sessions.update({'_id': session_stored['_id']}, {'$set': set_attributes})
             return session_stored['_id']
+
+    def queue_status(self):
+        """
+        Prints out information on the queue
+        """
+        aggregate = self.db.queue.aggregate([
+            {
+                "$group": {
+                    "_id": {
+                        "rs": "$rs",
+                        "status": "$status",
+                        "qname": "$qname"
+                    },
+                    "count": {"$sum": 1}
+                }
+            },
+            {
+                "$sort": {"_id.rs": 1}
+            }])
+        rs = None
+        for entry in aggregate['result']:
+            if entry['_id']['rs'] != rs:
+                rs = entry['_id']['rs']
+                print "RS: %s" % rs
+            print "Queue %s, status %s: %d jobs" % (
+                entry['_id']['qname'], entry['_id']['status'], entry['count'])

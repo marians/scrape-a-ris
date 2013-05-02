@@ -8,7 +8,7 @@ using Somacos SessionNet, written in Python. Scrape-a-RIS is the successor of
 for SessionNet instances in numerous municipalities (in Germany, mainly).
 
 
-## German information
+## Was ist Scape-A-RIS
 
 Scrape-A-RIS ist ein Scraper für Ratsinformationssysteme (RIS), die das System SessionNet 
 verwenden. Scrape-A-RIS ist der Nachfolger von [cologne-ris-scraper](https://github.com/marians/cologne-ris-scraper)
@@ -18,6 +18,11 @@ Scrape-A-RIS kann verwendet werden, um die strukturierten Daten und Inhalte aus 
 Beschlussvorlagen, Anträgen und Anhängen auszulesen und diese in einer Datenbank abzulegen. Das Wort [Scraper](http://de.wikipedia.org/wiki/Screen_Scraping)
 deutet auf die Funktionsweise hin: die Inhalte werden so aus den HTML-Seiten des RIS gelesen, wie sie für ganz
 normale Besucher im Web angezeigt werden.
+
+Scrape-A-RIS ist die Grundlage für die Web-Plattform Offenes Köln ([Github](https://github.com/marians/offeneskoeln), 
+[WWW](http://offeneskoeln.de/)), die zur benutzerfreundlichen Suche und Anzeige der Daten genutzt werden kann.
+Scrape-A-RIS kann jedoch auch unabhängig davon eingesetzt werden, bietet aber kein eigenes User Interface.
+
 
 ### Anforderungen
 

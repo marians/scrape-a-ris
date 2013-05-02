@@ -1,6 +1,6 @@
 # Scrape-A-RIS
 
-## English summary
+### English summary
 
 Scrape-A-RIS is a scraper for assembly information systems (Ratsinformationssysteme, RIS)
 using Somacos SessionNet, written in Python. Scrape-a-RIS is the successor of 
@@ -24,7 +24,7 @@ Scrape-A-RIS ist die Grundlage für die Web-Plattform Offenes Köln ([Github](ht
 Scrape-A-RIS kann jedoch auch unabhängig davon eingesetzt werden, bietet aber kein eigenes User Interface.
 
 
-### Anforderungen
+## Anforderungen
 
 Scrape-A-RIS ist in Python geschrieben und wurde erfolgreich mit Python-Version 2.7.2 auf Mac OS X 
 und 2.6.6 auf Debian und Red Hat Linux getestet.
@@ -35,7 +35,7 @@ Version 2.4 (speziell für die Verwendung mit [Offenes Köln](https://github.com
 Weitere benötigte Software wird in der
 [Installationsanleitung](https://github.com/marians/scrape-a-ris/wiki/Installation) genannt.
 
-### Installation
+## Installation
 
 Synopsis:
 
@@ -47,7 +47,7 @@ Synopsis:
 Eine [ausführliche Installationsanleitung](https://github.com/marians/scrape-a-ris/wiki/Installation) 
 findet sich im Wiki.
 
-### Anwendung
+## Anwendung
 
 Alle Kommandozeilen-Parameter werden erläutert, wenn das Hauptscript wie folgt aufgerufen wird:
 

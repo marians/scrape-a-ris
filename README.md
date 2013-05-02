@@ -21,9 +21,11 @@ normale Besucher im Web angezeigt werden.
 
 ### Anforderungen
 
-Scrape-A-RIS ist in Python geschrieben und wurde bislang mit Python-Version 2.7.2 auf Mac OS X getestet.
+Scrape-A-RIS ist in Python geschrieben und wurde erfolgreich mit Python-Version 2.7.2 auf Mac OS X 
+und 2.6.6 auf Debian und Red Hat Linux getestet.
 
-Daten werden in einer [MongoDB](http://www.mongodb.org/) Datenbank gespeichert. Bisher wurde Version 2.2 getestet.
+Daten werden in einer [MongoDB](http://www.mongodb.org/) Datenbank gespeichert. Empfohlen ist die aktuellste
+Version 2.4 (speziell für die Verwendung mit [Offenes Köln](https://github.com/marians/offeneskoeln)).
 
 Weitere benötigte Software wird in der
 [Installationsanleitung](https://github.com/marians/scrape-a-ris/wiki/Installation) genannt.
@@ -48,7 +50,7 @@ Alle Kommandozeilen-Parameter werden erläutert, wenn das Hauptscript wie folgt 
 
 Mit diesem Aufruf können Inhalte für Februar und März 2013 abgerufen werden:
 
-    >>> python main.py -v --start 2013-02 --end 2013-03
+    >>> python main.py -v --start 2013-02 --end 2013-03 -q
 
 Viel mehr zur Benutzung gibt es in einem [ausführlichen Tutorial](https://github.com/marians/scrape-a-ris/wiki/Benutzung).
 

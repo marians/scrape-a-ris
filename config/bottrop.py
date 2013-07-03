@@ -17,34 +17,17 @@ DB_PORT = 27017
 # SessionNet base url, should include trailing slash
 BASE_URL = 'http://ratsinfo.bottrop.de/buergerinfo/'
 
-
 # Name to identify your crawler to the server
 USER_AGENT_NAME = 'scrape-a-ris/0.1'
-
-# Folder where attachments will be stored
-ATTACHMENT_FOLDER = 'cache/attachments/' + RS
-
-# This requires you to have the tika Jar in the specified location.
-# This will start the Java Runtime environment with the Jar for
-# every file that will be processed. If you want the faster version,
-# comment this out and use the server version described below.
-#
-TIKA_COMMAND = 'java -jar bin/tika-app-1.3.jar -eutf8 -t'
-
-# If you prefer fast content extraction, start Tika as a server
-# before running the scraper. Use a command like this:
-#
-# > java -jar bin/tika-app-1.3.jar -s -eutf8 -t 55555
-#
-# Make sure to set the according port below:
-#
-#TIKA_SERVER = 'localhost'
-#TIKA_PORT = 55555
-# ^ (The server option is not implemented yet!)
 
 # Number of seconds to wait between requests. Increase this
 # if the systems behaves unstable (seconds)
 WAIT_TIME = 0.2
+
+# Log level (DEBUG, INFO, WARNING, ERROR or CRITICAL)
+LOG_LEVEL = 'INFO'
+# File to log to
+LOG_FILE = 'scrapearis_%s_%s.log' % (DB_NAME, RS)
 
 ###### Result normalization mapping
 
@@ -99,7 +82,7 @@ URLS = {
         'SUBMISSION_DETAIL_PRINT_PATTERN': BASE_URL + 'vo0050.asp?__kvonr=%d',
 
         # Attachment file download target file name(s)
-        'ATTACHMENT_DOWNLOAD_TARGET': ['getfile.asp']
+        'ATTACHMENT_DOWNLOAD_TARGET': ['ydocstart.asp', 'getfile.asp']
     },
     'PHP': {
         # Month calender page
@@ -200,5 +183,9 @@ XPATH = {
 FILE_EXTENSIONS = {
     'application/pdf': 'pdf',
     'image/tiff': 'tif',
-    'image/jpeg': 'jpg'
+    'image/jpeg': 'jpg',
+    'application/vnd.ms-powerpoint': 'pptx',
+    'application/msword': 'doc',
+    'application/zip': 'zip',
+    'text/html': 'html'
 }

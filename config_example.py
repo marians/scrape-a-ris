@@ -119,7 +119,7 @@ URLS = {
         'SUBMISSION_DETAIL_PRINT_PATTERN': BASE_URL + 'vo0050.asp?__kvonr=%d',
 
         # Attachment file download target file name(s)
-        'ATTACHMENT_DOWNLOAD_TARGET': ['getfile.asp']
+        'ATTACHMENT_DOWNLOAD_TARGET': ['ydocstart.asp', 'getfile.asp']
     },
     'PHP': {
         # Month calender page

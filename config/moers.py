@@ -24,6 +24,11 @@ USER_AGENT_NAME = 'scrape-a-ris/0.1'
 # if the systems behaves unstable (seconds)
 WAIT_TIME = 0.2
 
+# Log level (DEBUG, INFO, WARNING, ERROR or CRITICAL)
+LOG_LEVEL = 'INFO'
+# File to log to
+LOG_FILE = 'scrapearis_%s_%s.log' % (DB_NAME, RS)
+
 ###### Result normalization mapping
 
 RESULT_STRINGS = {
@@ -77,7 +82,7 @@ URLS = {
         'SUBMISSION_DETAIL_PRINT_PATTERN': BASE_URL + 'vo0050.asp?__kvonr=%d',
 
         # Attachment file download target file name(s)
-        'ATTACHMENT_DOWNLOAD_TARGET': ['getfile.asp']
+        'ATTACHMENT_DOWNLOAD_TARGET': ['ydocstart.asp', 'getfile.asp']
     },
     'PHP': {
         # Month calender page
@@ -162,7 +167,7 @@ XPATH = {
         'SESSION_DETAIL_ATTACHMENTS_CONTAINER_CLASSNAME': 'smcdocbox',
 
         # Same as above, for the submission detail page (Vorlagen-Detailseite)
-        'SUBMISSION_DETAIL_TITLE': '//div[@id="smclayout"]//h3',
+        'SUBMISSION_DETAIL_TITLE': '//h1',
         'SUBMISSION_DETAIL_IDENTIFIER_TD': '//*[@id="smctablevorgang"]/tbody//td',
 
         # "Beratungsfolge" table rows
@@ -180,5 +185,7 @@ FILE_EXTENSIONS = {
     'image/tiff': 'tif',
     'image/jpeg': 'jpg',
     'application/vnd.ms-powerpoint': 'pptx',
-    'application/msword': 'doc'
+    'application/msword': 'doc',
+    'application/zip': 'zip',
+    'text/html': 'html'
 }

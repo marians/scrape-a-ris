@@ -39,3 +39,4 @@ venv
 
 # cache directory
 cache
+config.py

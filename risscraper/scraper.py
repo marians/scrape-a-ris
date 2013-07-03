@@ -24,6 +24,7 @@ entstanden.
 """
 
 import mechanize
+import urllib2
 import parse
 import datetime
 import time
@@ -89,7 +90,13 @@ class Scraper(object):
         """
         time.sleep(self.config.WAIT_TIME)
         # requesting the base URL. This is usually redirected
-        response = self.user_agent.open(self.config.BASE_URL)
+        try:
+            response = self.user_agent.open(self.config.BASE_URL)
+        except urllib2.HTTPError, e:
+            if e.code == 404:
+                sys.stderr.write("URL not found (HTTP 404) error caught: %s\n" % self.config.BASE_URL)
+                sys.stderr.write("Please check BASE_URL in your configuration.\n")
+                sys.exit(1)
         url = response.geturl()
         assert (url != self.config.BASE_URL), "No redirect"
         if url.endswith('.php'):
@@ -400,7 +407,13 @@ class Scraper(object):
         submission = Submission(numeric_id=submission_id)
 
         time.sleep(self.config.WAIT_TIME)
-        response = self.user_agent.open(submission_url)
+        try:
+            response = self.user_agent.open(submission_url)
+        except urllib2.HTTPError, e:
+            if e.code == 404:
+                sys.stderr.write("URL not found (HTTP 404) error caught: %s\n" % submission_url)
+                sys.stderr.write("Please check BASE_URL in your configuration.\n")
+                sys.exit(1)
         mechanize_forms = mechanize.ParseResponse(response, backwards_compat=False)
         response.seek(0)
         html = response.read()

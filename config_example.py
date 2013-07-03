@@ -223,5 +223,6 @@ FILE_EXTENSIONS = {
     'image/jpeg': 'jpg',
     'application/vnd.ms-powerpoint': 'pptx',
     'application/msword': 'doc',
-    'application/zip': 'zip'
+    'application/zip': 'zip',
+    'text/html': 'html'
 }

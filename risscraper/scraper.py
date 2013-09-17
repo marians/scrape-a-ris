@@ -565,8 +565,12 @@ class Scraper(object):
             mform_response = mechanize.urlopen(mechanize_request)
             mform_url = mform_response.geturl()
             if self.list_in_string(self.urls['ATTACHMENT_DOWNLOAD_TARGET'], mform_url):
-                #print "Response headers:", mform_response.info()
-                attachment.content = mform_response.read()
+                try:
+                    attachment.content = mform_response.read()
+                except:
+                    # Trying to repeat an unsuccessful request. We'll see how this works.
+                    # (see issue #22)
+                    attachment.content = mform_response.read()
                 attachment.mimetype = magic.from_buffer(attachment.content, mime=True)
                 attachment.filename = self.make_attachment_filename(attachment.identifier, attachment.mimetype)
             else:

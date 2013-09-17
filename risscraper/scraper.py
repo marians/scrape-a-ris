@@ -540,8 +540,15 @@ class Scraper(object):
                             #print "Form found: '%s'" % mform
                             for control in mform.controls:
                                 if control.name == 'DT' and control.value == attachment_id:
-                                    attachment = self.get_attachment_file(attachment, mform)
-                                    submission.attachments.append(attachment)
+                                    attachment = False
+                                    try:
+                                        attachment = self.get_attachment_file(attachment, mform)
+                                    except:
+                                        # Second attempt in case of a stupid network error
+                                        # (see #22)
+                                        attachment = self.get_attachment_file(attachment, mform)
+                                    if attachment:
+                                        submission.attachments.append(attachment)
 
         # forcing overwrite=True here
         oid = self.db.save_submission(submission)
@@ -565,12 +572,7 @@ class Scraper(object):
             mform_response = mechanize.urlopen(mechanize_request)
             mform_url = mform_response.geturl()
             if self.list_in_string(self.urls['ATTACHMENT_DOWNLOAD_TARGET'], mform_url):
-                try:
-                    attachment.content = mform_response.read()
-                except:
-                    # Trying to repeat an unsuccessful request. We'll see how this works.
-                    # (see issue #22)
-                    attachment.content = mform_response.read()
+                attachment.content = mform_response.read()
                 attachment.mimetype = magic.from_buffer(attachment.content, mime=True)
                 attachment.filename = self.make_attachment_filename(attachment.identifier, attachment.mimetype)
             else:

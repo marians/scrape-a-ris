@@ -490,11 +490,12 @@ class Scraper(object):
                             self.submission_queue.add(parsed['submission_id'])
                 else:
                     if current_category == 'subordinates':
-                        for link in tds[n + 1].xpath('a'):
-                            href = link.get('href')
-                            parsed = parse.search(self.urls['SUBMISSION_DETAIL_PARSE_PATTERN'], href)
-                            if hasattr(self, 'submission_queue') and parsed is not None:
-                                self.submission_queue.add(parsed['submission_id'])
+                        if (n + 1) in tds:
+                            for link in tds[n + 1].xpath('a'):
+                                href = link.get('href')
+                                parsed = parse.search(self.urls['SUBMISSION_DETAIL_PARSE_PATTERN'], href)
+                                if hasattr(self, 'submission_queue') and parsed is not None:
+                                    self.submission_queue.add(parsed['submission_id'])
 
             if not hasattr(submission, 'identifier'):
                 logging.critical('Cannot find session identifier using SESSION_DETAIL_IDENTIFIER_TD_XPATH')

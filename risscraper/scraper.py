@@ -548,6 +548,7 @@ class Scraper(object):
                                     except:
                                         # Second attempt in case of a stupid network error
                                         # (see #22)
+                                        time.sleep(3)
                                         attachment = self.get_attachment_file(attachment, mform)
                                         got_attachment = True
                                     if got_attachment:

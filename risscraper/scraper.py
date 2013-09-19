@@ -541,14 +541,16 @@ class Scraper(object):
                             #print "Form found: '%s'" % mform
                             for control in mform.controls:
                                 if control.name == 'DT' and control.value == attachment_id:
-                                    attachment = False
+                                    got_attachment = False
                                     try:
                                         attachment = self.get_attachment_file(attachment, mform)
+                                        got_attachment = True
                                     except:
                                         # Second attempt in case of a stupid network error
                                         # (see #22)
                                         attachment = self.get_attachment_file(attachment, mform)
-                                    if attachment:
+                                        got_attachment = True
+                                    if got_attachment:
                                         submission.attachments.append(attachment)
 
         # forcing overwrite=True here

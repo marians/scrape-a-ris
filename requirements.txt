@@ -4,4 +4,4 @@ parse
 pymongo
 pytest
 python-magic
-
+libmagic
